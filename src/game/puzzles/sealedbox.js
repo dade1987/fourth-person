@@ -9,6 +9,8 @@ import { sealedBox, anyBoxHit } from '../../math4d/collide.js';
 import { dist4 } from '../../math4d/wedge.js';
 
 export const SLICE_TOLERANCE = 0.06;
+/** Quanto vicino devi essere per prenderla. Generoso: il difficile è entrare, non afferrare. */
+export const GRAB_RADIUS = 0.52;
 
 export function createSealedBoxPuzzle({ center = [0, 0, 0], half = [0.55, 0.45, 0.55] } = {}) {
   const c4 = new Float64Array([center[0], center[1], center[2], 0]);
@@ -34,11 +36,36 @@ export function createSealedBoxPuzzle({ center = [0, 0, 0], half = [0.55, 0.45, 
     /** Le pareti fermano solo chi resta nella fetta. Nessun caso speciale. */
     blockers: () => walls,
 
+    inSlice(player) {
+      return Math.abs(player[3]) < SLICE_TOLERANCE;
+    },
+
+    /** Si può prendere adesso? Da qui esce anche il bagliore della chiave. */
+    canGrab(player) {
+      return !state.holding && !state.solved && this.inSlice(player) && dist4(player, keyPosition) < GRAB_RADIUS;
+    },
+
+    /**
+     * Toccarla deve fare qualcosa. Se non si può ancora prendere, il perché non
+     * è un dettaglio da nascondere: è l'enigma. Restituisce il motivo.
+     */
+    attemptGrab(player, emit) {
+      if (state.holding || state.solved) return 'holding';
+      if (this.canGrab(player)) {
+        state.holding = true;
+        emit?.('grab', { puzzle: 'sealed-box' });
+        return 'grabbed';
+      }
+      if (!this.inSlice(player)) return 'outOfSlice';
+      return 'blocked';
+    },
+
     update(player, emit) {
       if (state.solved) return;
-      const inSlice = Math.abs(player[3]) < SLICE_TOLERANCE;
+      const inSlice = this.inSlice(player);
       if (!state.holding) {
-        if (inSlice && dist4(player, keyPosition) < 0.34) {
+        // camminarci sopra basta: toccarla è l'altra strada, non l'unica
+        if (this.canGrab(player)) {
           state.holding = true;
           emit?.('grab', { puzzle: 'sealed-box' });
         }

@@ -69,7 +69,11 @@
         "Uno che vive lì non vede figure. Vede una riga: la sua tela è una striscia."
       ],
       "action": "Questa striscia è tutta la tua vista. Che forma ti sta passando davanti?",
-      "options": ["un cerchio", "un quadrato", "un triangolo"],
+      "options": [
+        "un cerchio",
+        "un quadrato",
+        "un triangolo"
+      ],
       "wrong": "Hai sbagliato, ed era previsto: da lì dentro non si può sapere. Però qualcosa si riconosce lo stesso — quanto dura, come cresce, come finisce.",
       "right": "Indovinato. Ma ammettilo: hai tirato a indovinare. Da lì dentro non c'è modo di esserne sicuri.",
       "done": "Tieni da parte questa sensazione. Fra poco tocca a te stare di sotto."
@@ -114,7 +118,7 @@
       "title": "Adesso tocca a te",
       "lines": [
         "Da qui in poi ti muovi anche tu in quella direzione.",
-        "Il cursore in basso ti sposta. Nessuno di loro può seguirti, e mentre sei là fuori nessuno può nemmeno vederti.",
+        "Il cursore ambra qui a destra ti sposta. Nessuno di loro può seguirti, e mentre sei là fuori nessuno può nemmeno vederti.",
         "C'è una cassa chiusa, e dentro c'è una cosa che ti serve."
       ],
       "action": "Prendila.",
@@ -134,9 +138,10 @@
   "puzzles": {
     "sealed-box": {
       "title": "la cassa sigillata",
-      "hint": "In tre dimensioni è chiusa. Prova a uscire dalla fetta.",
+      "hint": "In tre dimensioni è chiusa da tutte le parti. Prova a uscire dalla fetta: il cursore ambra a destra.",
       "grab": "presa.",
-      "solved": "sei passato sopra un coperchio che non ha un sopra."
+      "solved": "sei passato sopra un coperchio che non ha un sopra.",
+      "reach": "Sei troppo lontano: avvicinati."
     },
     "rings": {
       "title": "i due anelli",

@@ -334,7 +334,18 @@ export function createWorld(renderer) {
       for (const p of Object.values(world.puzzles)) p.update(world.player, world.emit);
 
       const key = world.objects.find((o) => o.role === 'key');
-      if (key && world.puzzles.box) key.transform.position.set(world.puzzles.box.keyPosition);
+      if (key && world.puzzles.box) {
+        key.transform.position.set(world.puzzles.box.keyPosition);
+        // respira piano quando è a portata: 0,6 Hz, ben sotto la soglia WCAG
+        const near = world.puzzles.box.canGrab(world.player);
+        const k = near ? 0.5 + 0.5 * Math.sin(world.time * 2 * Math.PI * 0.6) : 0;
+        key.tint = [
+          Math.min(1, TINTS.key[0] * (1 + 0.55 * k)),
+          Math.min(1, TINTS.key[1] * (1 + 0.55 * k)),
+          Math.min(1, TINTS.key[2] * (1 + 1.6 * k)),
+        ];
+        key.reachable = near;
+      }
       const ringB = world.objects.find((o) => o.role === 'ringB');
       if (ringB && world.puzzles.rings) ringB.transform.position.set(world.puzzles.rings.positionB);
     },

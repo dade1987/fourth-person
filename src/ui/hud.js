@@ -35,6 +35,7 @@ export function createHud() {
     wvalue: $('wvalue'),
     wknob: $('wknob'),
     wslider: $('wslider'),
+    wrap: $('wrap'),
     wbutton: $('wbutton'),
     stickL: $('stickL'),
     stickR: $('stickR'),
@@ -152,6 +153,11 @@ export function createHud() {
       el.wvalue.textContent = `w ${value >= 0 ? ' ' : ''}${value.toFixed(2)}`;
       const h = el.wslider.clientHeight - 44;
       el.wknob.style.top = `${5 + h * (0.5 - value / 2.4)}px`;
+    },
+
+    /** Fa pulsare il cursore della quarta direzione: serve una volta sola, la prima. */
+    hintW(on) {
+      el.wrap.classList.toggle('pulse', on);
     },
 
     setWMode(on) {

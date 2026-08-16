@@ -126,17 +126,32 @@ export function createLadder(app) {
       hud.compass(true);
       await lines(ch);
       hud.action(ch.action);
+      // il cursore della quarta direzione si segnala da solo: è l'unico comando
+      // che il giocatore non ha mai visto in vita sua
+      hud.hintW(true);
 
       let left = false;
+      let touched = false;
+      const started = performance.now();
       const watch = setInterval(() => {
+        if (Math.abs(world.player[3]) > 0.05) {
+          touched = true;
+          hud.hintW(false);
+        }
         if (!left && Math.abs(world.player[3]) > 0.28) {
           left = true;
           runWowChoreography();
         }
-      }, 80);
+        // dodici secondi fermi nella fetta: l'indizio arriva prima della frustrazione
+        if (!touched && performance.now() - started > 12000) {
+          touched = true;
+          hud.toast(t().puzzles['sealed-box'].hint, 5200);
+        }
+      }, 120);
 
       await waitFor(() => world.puzzles.box?.state.solved || skipChapter);
       clearInterval(watch);
+      hud.hintW(false);
       hud.action(null);
       await capture.offerClip();
     },

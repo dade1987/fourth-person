@@ -142,6 +142,40 @@ test('un enigma si risolve con i comandi, e solo uscendo dalla fetta', async ({ 
   expect(await page.evaluate(() => window.__fp.world.puzzles.box.state.solved)).toBeTruthy();
 });
 
+test('toccare la chiave fa qualcosa: o la prende, o dice perché no', async ({ page }) => {
+  await page.goto('/index.html?fast=1');
+  await ready(page);
+  await page.getByText('no, fammi provare').click();
+  await page.waitForFunction(() => window.__fp.world.stage === 'room', null, { timeout: 20000 });
+
+  const keyScreen = () =>
+    page.evaluate(() => {
+      const fp = window.__fp;
+      const k = fp.world.objects.find((o) => o.role === 'key');
+      return fp.projectToScreen(new Float64Array([0, 0, 0, 0]), k.transform);
+    });
+
+  // da fuori la cassa: toccarla non la prende, ma spiega perché — mai un tocco muto
+  const s = await keyScreen();
+  expect(s).not.toBeNull();
+  await page.mouse.click(Math.round(s.x), Math.round(s.y));
+  await expect(page.locator('#toast')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('#toast')).toHaveText(/fetta/i);
+  expect(await page.evaluate(() => window.__fp.world.puzzles.box.state.holding)).toBeFalsy();
+
+  // e una volta dentro, si prende
+  await page.evaluate(() => window.__fp.controls.setW(0.7));
+  await page.evaluate(() => {
+    window.__fp.controls.state.move = { x: 0, y: 1 };
+  });
+  await page.waitForFunction(() => Math.abs(window.__fp.world.player[2]) < 0.18, null, { timeout: 15000 });
+  await page.evaluate(() => {
+    window.__fp.controls.state.move = { x: 0, y: 0 };
+  });
+  await page.evaluate(() => window.__fp.controls.setW(0));
+  await page.waitForFunction(() => window.__fp.world.puzzles.box.state.holding, null, { timeout: 10000 });
+});
+
 test('il frustum accoppiato dà parallasse orizzontale e verticale, coerenti con l inclinazione', async ({ page }) => {
   await page.goto('/index.html?fast=1');
   await ready(page);

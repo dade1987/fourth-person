@@ -69,7 +69,11 @@
         "Someone living there does not see shapes. They see a line: their whole canvas is a strip."
       ],
       "action": "This strip is your entire view. What shape is going past you?",
-      "options": ["a circle", "a square", "a triangle"],
+      "options": [
+        "a circle",
+        "a square",
+        "a triangle"
+      ],
       "wrong": "Wrong — as expected: from in there you cannot know. But something does come through: how long it lasts, how it grows, how it ends.",
       "right": "Right. Though be honest: you guessed. From in there, there is no way to be sure.",
       "done": "Keep that feeling. In a moment it is you who will be downstairs."
@@ -114,7 +118,7 @@
       "title": "Now it's your turn",
       "lines": [
         "From here on you move in that direction too.",
-        "The slider at the bottom moves you. None of them can follow you, and while you are out there none of them can even see you.",
+        "The amber slider on the right moves you. None of them can follow you, and while you are out there none of them can even see you.",
         "There is a sealed box, and inside it something you need."
       ],
       "action": "Take it.",
@@ -134,9 +138,10 @@
   "puzzles": {
     "sealed-box": {
       "title": "the sealed box",
-      "hint": "In three dimensions it is closed. Try stepping out of the slice.",
+      "hint": "In three dimensions it is closed on every side. Try stepping out of the slice: the amber slider on the right.",
       "grab": "got it.",
-      "solved": "you went over a lid that has no over."
+      "solved": "you went over a lid that has no over.",
+      "reach": "Too far away: get closer."
     },
     "rings": {
       "title": "the two rings",

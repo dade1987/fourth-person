@@ -34,7 +34,9 @@
   #hud > * { pointer-events: auto; }
 
   .fade { transition: opacity 260ms var(--ease), transform 260ms var(--ease); }
-  .hidden { opacity: 0; pointer-events: none !important; transform: translateY(6px); }
+  /* Nascosto vuol dire nascosto: né l'elemento né ciò che contiene ricevono tocchi. */
+  .hidden, .hidden * { opacity: 0; pointer-events: none !important; }
+  .hidden { transform: translateY(6px); }
   .gone { display: none !important; }
 
   /* ---------------------------------------------------------------- testo */
@@ -79,7 +81,10 @@
   #coldopenBtns { display: flex; gap: 10px; }
 
   /* -------------------------------------------------------------- comandi */
-  #controls { position: absolute; inset: 0; }
+  /* Il contenitore dei comandi copre lo schermo ma NON deve mangiarsi i tocchi:
+     solo gli stick e il cursore ricevono, il resto passa alla scena. */
+  #hud #controls { position: absolute; inset: 0; pointer-events: none; }
+  #controls .stick, #controls #wrap, #controls #wrap * { pointer-events: auto; }
   .stick {
     position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 116px; height: 116px;
     border-radius: 50%; border: 1px solid rgba(255,255,255,.13); background: rgba(255,255,255,.04);
@@ -99,6 +104,15 @@
   #wknob { position: absolute; left: 5px; width: 34px; height: 34px; border-radius: 50%; background: var(--w-accent); top: 66px; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
   #wvalue { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--w-accent); }
   #wbutton { width: 46px; height: 46px; border-radius: 50%; padding: 0; font-weight: 700; }
+  @keyframes wpulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,190,107,0); }
+    50% { box-shadow: 0 0 0 12px rgba(255,190,107,.16); }
+  }
+  /* 1,6 s = 0,63 Hz: ben sotto le tre volte al secondo della WCAG */
+  #wrap.pulse #wslider { animation: wpulse 1.6s var(--ease) infinite; border-color: var(--w-accent); }
+  @media (prefers-reduced-motion: reduce) {
+    #wrap.pulse #wslider { animation: none; border-color: var(--w-accent); box-shadow: 0 0 0 6px rgba(255,190,107,.14); }
+  }
   #wbutton.on { background: rgba(255,190,107,.22); border-color: var(--w-accent); color: var(--w-accent); }
 
   #compass { position: absolute; left: var(--pad); top: calc(124px + env(safe-area-inset-top)); width: 128px; height: 92px; }

@@ -181,7 +181,10 @@ async function boot() {
   }
 
   function onTap(point) {
-    if (!picking) return;
+    if (!picking) {
+      tapObjects(point);
+      return;
+    }
     const obj = world.objects.find((o) => o.role === 'polytope');
     if (!obj) return;
     let best = null;
@@ -195,6 +198,27 @@ async function boot() {
     if (best) {
       pickedVertex = best.i;
       drone.tick(0.4);
+    }
+  }
+
+  /**
+   * Toccare una cosa deve fare qualcosa. Se non si può ancora prendere, il gioco
+   * dice perché — una volta sola, e con la frase che è già l'indizio dell'enigma.
+   */
+  function tapObjects(point) {
+    const box = world.puzzles.box;
+    const key = world.objects.find((o) => o.role === 'key');
+    if (!box || !key || box.state.solved || box.state.holding) return;
+    const s = projectToScreen(new Float64Array([0, 0, 0, 0]), key.transform);
+    if (!s) return;
+    if (Math.hypot(s.x - point.x, s.y - point.y) > 90) return;
+    const res = box.attemptGrab(world.player, world.emit);
+    if (res === 'grabbed') {
+      drone.tick(0.7);
+    } else if (res === 'blocked') {
+      hud.toast(t.puzzles['sealed-box'].hint, 4600);
+    } else {
+      hud.toast(t.puzzles['sealed-box'].reach, 3600);
     }
   }
 
@@ -324,8 +348,19 @@ async function boot() {
     hud.controls(true);
     hud.compass(true);
     hud.modeBar(true);
-    hud.action(null);
     hud.chapter(null);
+    // Chi salta la Scala non deve trovarsi in una stanza muta: una riga sola,
+    // che dice cosa c'è da fare, e il cursore della quarta direzione che pulsa.
+    hud.action(t.puzzles['sealed-box'].hint);
+    hud.hintW(true);
+    const watch = setInterval(() => {
+      if (Math.abs(world.player[3]) > 0.05) {
+        hud.hintW(false);
+        hud.action(null);
+        clearInterval(watch);
+      }
+      if (world.stage !== 'room') clearInterval(watch);
+    }, 200);
   }
 
   // Un aggancio per i test end-to-end e per chi vuole guardarci dentro.
