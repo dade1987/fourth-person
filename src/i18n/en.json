@@ -1,0 +1,159 @@
+{
+  "code": "en",
+  "name": "English",
+  "voice": "en-GB",
+  "title": "fourth person",
+  "thesis": "You cannot see the fourth dimension. You can recognise it.",
+  "coldopen": {
+    "question": "want to understand what you just saw?",
+    "yes": "yes, explain it",
+    "no": "no, let me try"
+  },
+  "ui": {
+    "start": "start",
+    "skip": "skip",
+    "next": "next",
+    "repeat": "again",
+    "pause": "pause",
+    "resume": "resume",
+    "menu": "menu",
+    "close": "close",
+    "settings": "settings",
+    "ladder": "the ladder",
+    "explore": "explore",
+    "restart": "start the ladder again",
+    "subtitles": "subtitles",
+    "reduceMotion": "reduce motion",
+    "sound": "sound",
+    "wiggle": "sway",
+    "amplitude": "amount",
+    "frequency": "speed",
+    "gyro": "gyroscope",
+    "enableGyro": "use the phone's tilt",
+    "language": "language",
+    "share": "send it to a friend",
+    "sharing": "recording six seconds…",
+    "shared": "done",
+    "projection": "shadow",
+    "section": "slice",
+    "modeHint": "what you see is a projection: one dimension had to go",
+    "wButton": "W",
+    "wLabel": "fourth direction",
+    "compass": "where you are",
+    "chapter": "chapter",
+    "of": "of",
+    "done": "done",
+    "tapToCount": "tap a corner",
+    "howMany": "how many edges leave that corner?",
+    "wrong": "try again",
+    "noWebgl": "This phone can't draw the scene. It needs a browser with WebGL2."
+  },
+  "chapters": [
+    {
+      "id": "perspective",
+      "title": "The trick you use every day",
+      "lines": [
+        "Look at this cube. It is drawn on flat glass, and yet you see it as solid.",
+        "You already know the trick: far things get smaller, and two straight rails close into a point.",
+        "Your eye is handed a flat picture and pulls out of it something with a front and a back. It has always done this, without asking you."
+      ],
+      "action": "Drag the cube with your finger, and watch the faces stretch.",
+      "done": "There: the picture on the screen changed, the cube did not."
+    },
+    {
+      "id": "below",
+      "title": "One step down",
+      "lines": [
+        "Now the other way round: we take a dimension away from us.",
+        "Imagine living inside a sheet of paper. There is no up and no down: only forward, back, left and right.",
+        "Someone living there does not see shapes. They see a line: their whole canvas is a strip."
+      ],
+      "action": "This strip is your entire view. What shape is going past you?",
+      "options": ["a circle", "a square", "a triangle"],
+      "wrong": "Wrong — as expected: from in there you cannot know. But something does come through: how long it lasts, how it grows, how it ends.",
+      "right": "Right. Though be honest: you guessed. From in there, there is no way to be sure.",
+      "done": "Keep that feeling. In a moment it is you who will be downstairs."
+    },
+    {
+      "id": "above",
+      "title": "One step up",
+      "lines": [
+        "Now we climb. This is a cube inside a cube — or at least, that is how it reaches us.",
+        "It is not a small cube inside a big one: it is eight equal cubes, and none of them is inside any other. It is our view that squashes them like that, the way a cage throws a shadow on a wall.",
+        "Move it. You need that to work out what is in front of what, and it is exactly what you do when you move your head."
+      ],
+      "action": "Turn it with your finger until it turns itself inside out.",
+      "done": "The cube that was outside is now inside. Nothing broke: it turned in a direction we do not have."
+    },
+    {
+      "id": "shadowOrSlice",
+      "title": "Shadow or slice",
+      "lines": [
+        "There are two ways a big thing can show itself in a smaller world.",
+        "Either it sends its shadow, all at once and flattened. Or it lets you see one slice at a time, sharp.",
+        "The shadow keeps everything and confuses you. The slice is clean, and hides all the rest."
+      ],
+      "action": "Switch between the two until the difference is obvious.",
+      "done": "They are the same thing seen two ways. That is not a technical detail: that is the whole problem."
+    },
+    {
+      "id": "rule",
+      "title": "How you recognise it, since you can't see it",
+      "lines": [
+        "I'll be honest with you: you will never see the fourth dimension. Neither will I.",
+        "But it always turns up in the same way: as a rule that breaks.",
+        "In a cube, three edges leave every corner. Always three. Not here."
+      ],
+      "action": "Tap a corner and count them.",
+      "answer": 4,
+      "wrong": "Look again: four edges leave that corner.",
+      "done": "Four. In three dimensions there is no way to fit four of them at right angles. The rule broke: that is how you recognise it."
+    },
+    {
+      "id": "yourTurn",
+      "title": "Now it's your turn",
+      "lines": [
+        "From here on you move in that direction too.",
+        "The slider at the bottom moves you. None of them can follow you, and while you are out there none of them can even see you.",
+        "There is a sealed box, and inside it something you need."
+      ],
+      "action": "Take it.",
+      "done": "You forced nothing. The box is closed on every side they have."
+    },
+    {
+      "id": "limit",
+      "title": "What even you can't do",
+      "lines": [
+        "Even now you are not seeing the fourth dimension: you are looking at a projection of it, exactly as they were looking at a shadow.",
+        "And there is something worse. To really change an object made of four dimensions you would need a time that sits outside all four of them. You do not have that time.",
+        "The ladder goes on above you. This is only the step from which you can see the next one."
+      ],
+      "done": "The room is yours now."
+    }
+  ],
+  "puzzles": {
+    "sealed-box": {
+      "title": "the sealed box",
+      "hint": "In three dimensions it is closed. Try stepping out of the slice.",
+      "grab": "got it.",
+      "solved": "you went over a lid that has no over."
+    },
+    "rings": {
+      "title": "the two rings",
+      "hint": "There is no way to separate them from in here.",
+      "grab": "you're holding the ring.",
+      "solved": "they were linked. Now they are not, and you broke nothing."
+    },
+    "hand": {
+      "title": "the mirrored hand",
+      "hint": "The lock wants the other hand. Turn it all you like: it will not be enough.",
+      "solved": "it was a left hand. Now it is a right one."
+    }
+  },
+  "hud": {
+    "w": "w",
+    "youAreAt": "you are at",
+    "outOfSlice": "you are outside their slice",
+    "inSlice": "you are in their slice"
+  }
+}

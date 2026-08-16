@@ -1,0 +1,159 @@
+{
+  "code": "it",
+  "name": "Italiano",
+  "voice": "it-IT",
+  "title": "quarta persona",
+  "thesis": "Non puoi vedere la quarta dimensione. Puoi riconoscerla.",
+  "coldopen": {
+    "question": "vuoi capire cosa hai appena visto?",
+    "yes": "sì, spiegamelo",
+    "no": "no, fammi provare"
+  },
+  "ui": {
+    "start": "comincia",
+    "skip": "salta",
+    "next": "avanti",
+    "repeat": "ripeti",
+    "pause": "pausa",
+    "resume": "riprendi",
+    "menu": "menu",
+    "close": "chiudi",
+    "settings": "impostazioni",
+    "ladder": "la scala",
+    "explore": "esplora",
+    "restart": "ricomincia la scala",
+    "subtitles": "sottotitoli",
+    "reduceMotion": "riduci il movimento",
+    "sound": "suono",
+    "wiggle": "oscillazione",
+    "amplitude": "ampiezza",
+    "frequency": "frequenza",
+    "gyro": "giroscopio",
+    "enableGyro": "usa l'inclinazione del telefono",
+    "language": "lingua",
+    "share": "manda a un amico",
+    "sharing": "sto registrando sei secondi…",
+    "shared": "fatto",
+    "projection": "ombra",
+    "section": "fetta",
+    "modeHint": "quello che vedi è una proiezione: una dimensione l'abbiamo persa per forza",
+    "wButton": "W",
+    "wLabel": "quarta direzione",
+    "compass": "dove sei",
+    "chapter": "capitolo",
+    "of": "di",
+    "done": "fatto",
+    "tapToCount": "tocca un angolo",
+    "howMany": "quanti spigoli partono da lì?",
+    "wrong": "riprova",
+    "noWebgl": "Questo telefono non riesce a disegnare la scena. Serve un browser con WebGL2."
+  },
+  "chapters": [
+    {
+      "id": "prospettiva",
+      "title": "Il trucco che usi ogni giorno",
+      "lines": [
+        "Guarda questo cubo. È disegnato su un vetro piatto, eppure lo vedi solido.",
+        "Il trucco lo conosci già: le cose lontane si rimpiccioliscono, e due binari dritti si chiudono in un punto.",
+        "Il tuo occhio riceve una figura piatta e ne tira fuori una cosa che ha un davanti e un dietro. Lo fa da sempre, senza chiedertelo."
+      ],
+      "action": "Trascina il cubo con il dito, e guarda le facce che si deformano.",
+      "done": "Ecco: la figura sullo schermo è cambiata, il cubo no."
+    },
+    {
+      "id": "sotto",
+      "title": "Un gradino sotto",
+      "lines": [
+        "Adesso facciamo il contrario: togliamo una dimensione a noi.",
+        "Immagina di vivere dentro un foglio. Non c'è sopra e non c'è sotto: solo avanti, indietro, destra e sinistra.",
+        "Uno che vive lì non vede figure. Vede una riga: la sua tela è una striscia."
+      ],
+      "action": "Questa striscia è tutta la tua vista. Che forma ti sta passando davanti?",
+      "options": ["un cerchio", "un quadrato", "un triangolo"],
+      "wrong": "Hai sbagliato, ed era previsto: da lì dentro non si può sapere. Però qualcosa si riconosce lo stesso — quanto dura, come cresce, come finisce.",
+      "right": "Indovinato. Ma ammettilo: hai tirato a indovinare. Da lì dentro non c'è modo di esserne sicuri.",
+      "done": "Tieni da parte questa sensazione. Fra poco tocca a te stare di sotto."
+    },
+    {
+      "id": "sopra",
+      "title": "Un gradino sopra",
+      "lines": [
+        "Adesso saliamo. Questo è un cubo dentro un cubo — o almeno, è così che arriva a noi.",
+        "Non è un cubo piccolo dentro uno grande: sono otto cubi uguali, e nessuno sta dentro nessuno. È la nostra vista che li schiaccia così, come l'ombra di una gabbia sul muro.",
+        "Muovilo. Ti serve a capire cosa sta davanti a cosa, ed è esattamente quello che fai muovendo la testa."
+      ],
+      "action": "Ruotalo col dito finché non si rovescia.",
+      "done": "Il cubo che era fuori adesso è dentro. Non si è rotto niente: si è girato in una direzione che non abbiamo."
+    },
+    {
+      "id": "ombraofetta",
+      "title": "Ombra o fetta",
+      "lines": [
+        "Ci sono due modi in cui una cosa grande si affaccia in un mondo più piccolo.",
+        "O ti manda la sua ombra, tutta insieme e schiacciata. O ti fa vedere una fetta per volta, nitida.",
+        "L'ombra tiene tutto ma confonde. La fetta è pulita, e ti nasconde tutto il resto."
+      ],
+      "action": "Passa dall'una all'altra finché la differenza non ti è ovvia.",
+      "done": "Sono la stessa cosa guardata in due modi. Non è un dettaglio tecnico: è tutto il problema."
+    },
+    {
+      "id": "regola",
+      "title": "Come si riconosce, visto che non si vede",
+      "lines": [
+        "Sarò onesto con te: la quarta dimensione non la vedrai mai. Nemmeno io.",
+        "Però si presenta sempre allo stesso modo: come una regola che salta.",
+        "In un cubo, da ogni angolo partono tre spigoli. Sempre tre. Qui no."
+      ],
+      "action": "Tocca un angolo e contali.",
+      "answer": 4,
+      "wrong": "Guarda meglio: gli spigoli che partono da quell'angolo sono quattro.",
+      "done": "Quattro. In tre dimensioni non c'è modo di farne stare quattro tutti ad angolo retto. La regola è saltata: è così che si riconosce."
+    },
+    {
+      "id": "tocca",
+      "title": "Adesso tocca a te",
+      "lines": [
+        "Da qui in poi ti muovi anche tu in quella direzione.",
+        "Il cursore in basso ti sposta. Nessuno di loro può seguirti, e mentre sei là fuori nessuno può nemmeno vederti.",
+        "C'è una cassa chiusa, e dentro c'è una cosa che ti serve."
+      ],
+      "action": "Prendila.",
+      "done": "Non hai forzato niente. La cassa è chiusa da tutte le parti che loro hanno."
+    },
+    {
+      "id": "limite",
+      "title": "Quello che nemmeno tu puoi fare",
+      "lines": [
+        "Anche adesso non stai vedendo la quarta dimensione: ne stai guardando una proiezione, esattamente come loro guardavano un'ombra.",
+        "E c'è una cosa peggiore. Per cambiare davvero un oggetto fatto di quattro dimensioni servirebbe un tempo che sta fuori da tutte e quattro. Quel tempo non ce l'hai.",
+        "La scala continua sopra di te. Questo è solo il gradino da cui si vede quello dopo."
+      ],
+      "done": "Adesso la stanza è tua."
+    }
+  ],
+  "puzzles": {
+    "sealed-box": {
+      "title": "la cassa sigillata",
+      "hint": "In tre dimensioni è chiusa. Prova a uscire dalla fetta.",
+      "grab": "presa.",
+      "solved": "sei passato sopra un coperchio che non ha un sopra."
+    },
+    "rings": {
+      "title": "i due anelli",
+      "hint": "Non c'è modo di separarli restando qui dentro.",
+      "grab": "tieni l'anello.",
+      "solved": "erano allacciati. Adesso no, e non li hai rotti."
+    },
+    "hand": {
+      "title": "la mano specchiata",
+      "hint": "La serratura vuole l'altra mano. Girala quanto vuoi: non basterà.",
+      "solved": "era sinistra. Adesso è destra."
+    }
+  },
+  "hud": {
+    "w": "w",
+    "youAreAt": "sei a",
+    "outOfSlice": "sei fuori dalla loro fetta",
+    "inSlice": "sei nella loro fetta"
+  }
+}

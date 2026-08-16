@@ -1,0 +1,16 @@
+{
+  "name": "fourth-person",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Non puoi vedere la quarta dimensione. Puoi riconoscerla.",
+  "scripts": {
+    "test": "node --test test/math4d.spec.js test/invariants.spec.js test/perception.spec.js",
+    "test:e2e": "playwright test",
+    "serve": "python3 -m http.server 8080"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

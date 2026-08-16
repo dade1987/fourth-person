@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#08090c">
+<title>quarta persona — non puoi vedere la quarta dimensione, puoi riconoscerla</title>
+<meta name="description" content="Un gioco nel browser in cui abiti uno spazio a quattro dimensioni. Nessun occhiale, nessuna app. Apri il link e inclina il telefono.">
+<meta property="og:title" content="quarta persona">
+<meta property="og:description" content="Non puoi vedere la quarta dimensione. Puoi riconoscerla.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="press/screenshots/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23090b10'/><rect x='6' y='6' width='20' height='20' fill='none' stroke='%238ec5ff' stroke-width='1.5'/><rect x='11' y='11' width='10' height='10' fill='none' stroke='%238ec5ff' stroke-width='1'/><path d='M6 6l5 5M26 6l-5 5M6 26l5-5M26 26l-5-5' stroke='%238ec5ff' stroke-width='.8'/></svg>">
+<style>
+  :root {
+    --ink: #eef1f7;
+    --dim: #9aa3b5;
+    --bg: #08090c;
+    --accent: #8ec5ff;
+    --w-accent: #ffbe6b;
+    --ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --pad: max(14px, env(safe-area-inset-left));
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink);
+    font: 400 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+    overscroll-behavior: none; touch-action: none; user-select: none;
+  }
+  #view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #hud > * { pointer-events: auto; }
+
+  .fade { transition: opacity 260ms var(--ease), transform 260ms var(--ease); }
+  .hidden { opacity: 0; pointer-events: none !important; transform: translateY(6px); }
+  .gone { display: none !important; }
+
+  /* ---------------------------------------------------------------- testo */
+  #subtitle {
+    position: absolute; left: 0; right: 0; bottom: calc(150px + env(safe-area-inset-bottom));
+    margin: 0 auto; max-width: 34rem; padding: 0 var(--pad);
+    text-align: center; font-size: clamp(17px, 4.4vw, 22px); line-height: 1.4;
+    text-shadow: 0 2px 18px rgba(0,0,0,.85), 0 0 2px rgba(0,0,0,.9);
+  }
+  #action {
+    position: absolute; left: 0; right: 0; bottom: calc(108px + env(safe-area-inset-bottom));
+    text-align: center; padding: 0 var(--pad); color: var(--accent);
+    font-size: clamp(15px, 3.9vw, 19px); font-weight: 600;
+    text-shadow: 0 2px 14px rgba(0,0,0,.9);
+  }
+  #chapterTitle {
+    position: absolute; top: calc(62px + env(safe-area-inset-top)); left: 0; right: 0; padding: 0 18px;
+    text-align: center; color: var(--dim); font-size: 13px; letter-spacing: .09em; text-transform: lowercase;
+  }
+  #chapterTitle b { display: block; color: var(--ink); font-size: 17px; letter-spacing: 0; text-transform: none; font-weight: 600; margin-top: 2px; }
+
+  /* -------------------------------------------------------------- bottoni */
+  .btn {
+    appearance: none; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.07);
+    color: var(--ink); font: inherit; font-size: 16px; padding: 12px 18px; border-radius: 999px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: transform 180ms var(--ease), background 180ms var(--ease);
+  }
+  .btn:active { transform: scale(.96); background: rgba(255,255,255,.14); }
+  .btn.primary { background: rgba(142,197,255,.16); border-color: rgba(142,197,255,.5); color: #dcecff; }
+  #choices {
+    position: absolute; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom));
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 var(--pad);
+  }
+
+  /* ------------------------------------------------------------ cold open */
+  #coldopen {
+    position: absolute; inset: auto 0 0 0; padding: 0 var(--pad) calc(40px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  #coldopen p { margin: 0; font-size: clamp(19px, 5vw, 25px); text-align: center; text-shadow: 0 2px 20px #000; }
+  #coldopenBtns { display: flex; gap: 10px; }
+
+  /* -------------------------------------------------------------- comandi */
+  #controls { position: absolute; inset: 0; }
+  .stick {
+    position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 116px; height: 116px;
+    border-radius: 50%; border: 1px solid rgba(255,255,255,.13); background: rgba(255,255,255,.04);
+    display: grid; place-items: center;
+  }
+  #stickL { left: var(--pad); }
+  #stickR { right: calc(var(--pad) + 62px); }
+  .knob { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.22); transition: transform 60ms linear; }
+  #stickR.wmode { border-color: var(--w-accent); box-shadow: 0 0 26px rgba(255,190,107,.35) inset; }
+  #stickR.wmode .knob { background: rgba(255,190,107,.55); }
+
+  #wrap { position: absolute; right: var(--pad); bottom: calc(22px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #wslider {
+    width: 46px; height: 168px; border-radius: 26px; border: 1px solid rgba(255,255,255,.14);
+    background: linear-gradient(#ffbe6b22, transparent 45%, transparent 55%, #8ec5ff22); position: relative;
+  }
+  #wknob { position: absolute; left: 5px; width: 34px; height: 34px; border-radius: 50%; background: var(--w-accent); top: 66px; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
+  #wvalue { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--w-accent); }
+  #wbutton { width: 46px; height: 46px; border-radius: 50%; padding: 0; font-weight: 700; }
+  #wbutton.on { background: rgba(255,190,107,.22); border-color: var(--w-accent); color: var(--w-accent); }
+
+  #compass { position: absolute; left: var(--pad); top: calc(124px + env(safe-area-inset-top)); width: 128px; height: 92px; }
+  #modeBar {
+    position: absolute; right: var(--pad); top: calc(12px + env(safe-area-inset-top));
+    display: flex; gap: 6px; align-items: center;
+  }
+  .chip { font-size: 12px; padding: 7px 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05); color: var(--dim); }
+  .chip.on { color: var(--ink); border-color: rgba(142,197,255,.55); background: rgba(142,197,255,.14); }
+  #modeHint { position: absolute; right: var(--pad); top: calc(124px + env(safe-area-inset-top)); max-width: 46vw; text-align: right; font-size: 11px; color: var(--dim); }
+
+  /* -------------------------------------------------------------- pannello */
+  #panel {
+    position: absolute; inset: 0; background: rgba(6,7,10,.92); backdrop-filter: blur(18px);
+    padding: calc(24px + env(safe-area-inset-top)) var(--pad) calc(24px + env(safe-area-inset-bottom));
+    overflow: auto; display: flex; flex-direction: column; gap: 18px;
+  }
+  #panel h2 { margin: 0; font-size: 20px; font-weight: 600; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .row label { color: var(--dim); }
+  input[type=range] { width: 150px; }
+  #panel .btn { align-self: flex-start; }
+
+  #flatstrip { width: min(92vw, 30rem); height: 46px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); display: block; margin: 0 auto; }
+  #flatwrap { position: absolute; left: 0; right: 0; bottom: calc(190px + env(safe-area-inset-bottom)); padding: 0 var(--pad); }
+
+  #toast {
+    position: absolute; left: 0; right: 0; top: calc(84px + env(safe-area-inset-top));
+    text-align: center; font-size: 15px; color: var(--accent);
+  }
+  #share { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(200px + env(safe-area-inset-bottom)); }
+  #share.hidden { transform: translateX(-50%) translateY(6px); }
+  #recdot { position: absolute; top: calc(14px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); font-size: 12px; color: #ff8a8a; }
+  #fatal { position: absolute; inset: 0; display: grid; place-items: center; padding: 8vw; text-align: center; color: var(--dim); }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="hud">
+  <div id="chapterTitle" class="fade hidden"></div>
+  <div id="modeBar" class="fade hidden">
+    <button class="chip" id="modeProjection">ombra</button>
+    <button class="chip" id="modeSection">fetta</button>
+    <button class="chip" id="menuBtn">≡</button>
+  </div>
+  <div id="modeHint" class="fade hidden"></div>
+  <canvas id="compass" class="fade hidden"></canvas>
+
+  <div id="toast" class="fade hidden"></div>
+  <div id="recdot" class="fade hidden">● 6s</div>
+  <div id="subtitle" class="fade hidden"></div>
+  <div id="action" class="fade hidden"></div>
+  <div id="flatwrap" class="fade hidden"><canvas id="flatstrip"></canvas></div>
+  <div id="choices" class="fade hidden"></div>
+  <button id="share" class="btn primary fade hidden">manda a un amico</button>
+
+  <div id="coldopen" class="fade hidden">
+    <p id="coldopenText"></p>
+    <div id="coldopenBtns"></div>
+  </div>
+
+  <div id="controls" class="fade hidden">
+    <div class="stick" id="stickL"><div class="knob" id="knobL"></div></div>
+    <div class="stick" id="stickR"><div class="knob" id="knobR"></div></div>
+    <div id="wrap">
+      <button class="btn" id="wbutton">W</button>
+      <div id="wslider"><div id="wknob"></div></div>
+      <div id="wvalue">w 0.00</div>
+    </div>
+  </div>
+
+  <div id="panel" class="fade gone"></div>
+</div>
+
+<noscript><div id="fatal">Questo gioco ha bisogno di JavaScript.</div></noscript>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

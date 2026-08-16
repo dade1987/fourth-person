@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quarta persona — presskit</title>
+<meta name="description" content="Non puoi vedere la quarta dimensione. Puoi riconoscerla. Un gioco nel browser, gratuito, senza occhiali e senza app.">
+<meta property="og:title" content="quarta persona">
+<meta property="og:description" content="Non puoi vedere la quarta dimensione. Puoi riconoscerla.">
+<meta property="og:image" content="screenshots/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root { --ink:#eef1f7; --dim:#9aa3b5; --bg:#08090c; --accent:#8ec5ff; }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font: 400 17px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 6vh 20px 12vh; }
+  h1 { font-size: clamp(28px, 7vw, 44px); line-height: 1.15; margin: 0 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 20px; margin: 42px 0 10px; }
+  p.lead { font-size: clamp(19px, 4.4vw, 23px); color: var(--ink); margin: 0 0 28px; }
+  .dim { color: var(--dim); }
+  img.hero { width:100%; border-radius: 14px; display:block; margin: 22px 0; background:#111; }
+  .play {
+    display:inline-block; padding: 15px 26px; border-radius:999px; text-decoration:none;
+    background: rgba(142,197,255,.16); border:1px solid rgba(142,197,255,.55); color:#dcecff; font-weight:600;
+  }
+  ul { padding-left: 20px; }
+  li { margin: 7px 0; }
+  code { background: rgba(255,255,255,.07); padding: 2px 6px; border-radius: 5px; font-size: .92em; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  td, th { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); vertical-align: top; }
+  footer { margin-top: 48px; color: var(--dim); font-size: 14px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>quarta persona</h1>
+  <p class="lead">Non puoi vedere la quarta dimensione. Puoi riconoscerla.</p>
+
+  <p><a class="play" href="../index.html">▶ Gioca</a></p>
+
+  <img class="hero" src="screenshots/ombra-dell-ombra.gif" alt="Un tesseratto di vetro si rovescia e la sua ombra si contorce sul pavimento">
+
+  <p><strong>Nessun occhiale, nessuna app, nessun permesso.</strong> Si apre da un link
+  sul telefono, funziona offline, ed è gratuito e open source.</p>
+
+  <h2>In una riga</h2>
+  <p>Un gioco nel browser in cui abiti uno spazio a quattro dimensioni, e che ti
+  accompagna dalla prospettiva del disegno fino alla quarta dimensione parlandoti in
+  lingua semplice, un gradino alla volta.</p>
+
+  <h2>Cosa lo distingue</h2>
+  <ul>
+    <li><strong>Ti insegna.</strong> Sette capitoli narrati, ognuno chiuso da un'azione
+      che compi tu. Nessun capitolo avanza da solo.</li>
+    <li><strong>Profondità senza occhiali.</strong> Prospettiva accoppiata alla testa —
+      frustum asimmetrico fuori asse, non una camera che ruota — più oscillazione
+      autonoma quando il telefono è fermo.</li>
+    <li><strong>Le celle sono di vetro</strong>, con la rifrazione che varia con la
+      distanza nella quarta direzione. I fili sono ambigui, il solido nasconde: il
+      vetro fa vedere tutte e otto le celle senza ribaltare la profondità.</li>
+    <li><strong>L'ombra dell'ombra.</strong> L'oggetto proiettato in tre dimensioni sta
+      nella stanza e proietta a sua volta un'ombra sul pavimento.</li>
+    <li><strong>Si sente.</strong> Un bordone la cui altezza segue la tua posizione in
+      <code>w</code>.</li>
+  </ul>
+
+  <h2>Per chi vuole la sostanza</h2>
+  <p>La matematica è nel repository, isolata dal rendering e verificata dai test:
+  momento angolare a sei componenti, rotazioni doppie e isocline, caduta
+  <code>1/r³</code> con orbite che non stanno in piedi (Ehrenfest, 1917), nodi che si
+  sciolgono, chiralità che si ribalta solo passando per un piano che contiene
+  <code>w</code>, e i sei politopi regolari generati da codice.</p>
+
+  <table>
+    <tr><th>Piattaforma</th><td>browser, mobile-first (Chrome su Android, Safari su iOS), PWA installabile</td></tr>
+    <tr><th>Prezzo</th><td>gratuito</td></tr>
+    <tr><th>Licenza</th><td>codice MIT, contenuti CC BY 4.0</td></tr>
+    <tr><th>Telemetria</th><td>nessuna</td></tr>
+    <tr><th>Lingue</th><td>italiano, inglese (aggiungerne una costa un file solo)</td></tr>
+    <tr><th>Repository</th><td><a href="https://github.com/dade1987/fourth-person">github.com/dade1987/fourth-person</a></td></tr>
+  </table>
+
+  <h2>Cosa non fa</h2>
+  <p class="dim">Non è un visualizzatore di tesseratti, non ha multiplayer, classifiche
+  né account, non usa la fotocamera, e non contiene la 120-cella. L'elenco completo di
+  ciò che sta fuori è nella specifica pubblica, §11.</p>
+
+  <h2>Materiali</h2>
+  <ul>
+    <li><a href="screenshots/ombra-dell-ombra.gif">GIF — l'ombra dell'ombra</a></li>
+    <li><a href="screenshots/og.png">Immagine di anteprima (Open Graph)</a></li>
+    <li><a href="../SPEC.md">Specifica completa</a> · <a href="../FONTI.md">Fonti e test</a></li>
+  </ul>
+
+  <footer>
+    Grazie a <em>Miegakure</em> e <em>4D Toys</em> di Marc ten Bosch e a <em>4D Golf</em>
+    di CodeParade: sono arrivati prima, e vanno giocati.
+  </footer>
+</main>
+</body>
+</html>
