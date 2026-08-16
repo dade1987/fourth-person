@@ -46,7 +46,11 @@
     "tapToCount": "tap a corner",
     "howMany": "how many edges leave that corner?",
     "wrong": "try again",
-    "noWebgl": "This phone can't draw the scene. It needs a browser with WebGL2."
+    "noWebgl": "This phone can't draw the scene. It needs a browser with WebGL2.",
+    "everyday": "everyday things",
+    "mug": "mug",
+    "lucchetto": "padlock",
+    "everydayHint": "Drag to turn it in the fourth direction. The padlock opens on its own: tap it."
   },
   "chapters": [
     {

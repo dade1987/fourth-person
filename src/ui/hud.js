@@ -44,6 +44,7 @@ export function createHud() {
     modeProjection: $('modeProjection'),
     modeSection: $('modeSection'),
     menuBtn: $('menuBtn'),
+    objectChip: $('objectChip'),
   };
 
   let toastTimer = null;
@@ -163,6 +164,16 @@ export function createHud() {
     setWMode(on) {
       el.wbutton.classList.toggle('on', on);
       el.stickR.classList.toggle('wmode', on);
+    },
+
+    /** La pillola che dice quale cosa di casa stai guardando. */
+    objectChip(label) {
+      if (!label) {
+        el.objectChip.classList.add('gone');
+        return;
+      }
+      el.objectChip.textContent = label;
+      el.objectChip.classList.remove('gone', 'hidden');
     },
 
     setMode(name) {

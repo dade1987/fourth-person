@@ -206,6 +206,27 @@ async function boot() {
    * dice perché — una volta sola, e con la frase che è già l'indizio dell'enigma.
    */
   function tapObjects(point) {
+    // il lucchetto: toccarlo lo apre, passando fuori dalla fetta
+    const near = (obj, radius = 110) => {
+      if (!obj || (obj.opacity ?? 1) < 0.05) return false;
+      const s = projectToScreen(new Float64Array([0, 0, 0, 0]), obj.transform);
+      return !!s && Math.hypot(s.x - point.x, s.y - point.y) < radius;
+    };
+    if (world.stage === 'oggetti') {
+      const body = world.objects.find((o) => o.role === 'padlockBody');
+      const shackle = world.objects.find((o) => o.role === 'shackle');
+      if (near(body) || near(shackle)) {
+        if (world.playPadlock()) drone.tick(0.4);
+      }
+      return;
+    }
+    // la mano: mezzo giro in xw, mostrato per intero
+    const hand = world.objects.find((o) => o.role === 'hand');
+    if (hand && near(hand, 90) && !world.puzzles.hand?.state.solved) {
+      if (world.playMirror()) drone.tick(0.4);
+      return;
+    }
+
     const box = world.puzzles.box;
     const key = world.objects.find((o) => o.role === 'key');
     if (!box || !key || box.state.solved || box.state.holding) return;
@@ -293,6 +314,16 @@ async function boot() {
       };
       panel.appendChild(again);
 
+      const things = document.createElement('button');
+      things.className = 'btn';
+      things.textContent = t.ui.everyday;
+      things.onclick = () => {
+        hud.closePanel();
+        ladder.stop();
+        startEveryday();
+      };
+      panel.appendChild(things);
+
       const explore = document.createElement('button');
       explore.className = 'btn';
       explore.textContent = t.ui.explore;
@@ -338,12 +369,31 @@ async function boot() {
   const ladder = createLadder(app);
 
   async function startLadder(from = 0) {
+    hud.objectChip(null);
     hud.modeBar(true);
     await ladder.run(from);
     startExplore();
   }
 
+  /** La vetrina delle cose di casa: una tazza con vero spessore in w, e un lucchetto. */
+  function startEveryday() {
+    world.setStage('oggetti');
+    hud.controls(false);
+    hud.compass(true);
+    hud.modeBar(true);
+    hud.chapter(null);
+    hud.objectChip(t.ui[world.showcase === 'mug' ? 'mug' : 'lucchetto']);
+    hud.action(t.ui.everydayHint);
+    setTimeout(() => hud.action(null), 7000);
+  }
+
+  hud.el.objectChip.onclick = () => {
+    const name = world.nextShowcase();
+    hud.objectChip(t.ui[name === 'mug' ? 'mug' : 'lucchetto']);
+  };
+
   function startExplore() {
+    hud.objectChip(null);
     world.setStage('room');
     hud.controls(true);
     hud.compass(true);
@@ -367,7 +417,7 @@ async function boot() {
   window.__fp = {
     world, renderer, controls, settings, hud, voice, drone, clip, ladder,
     projectToScreen, get view() { return world.view; },
-    startExplore, startLadder,
+    startExplore, startLadder, startEveryday,
   };
 
   if ('serviceWorker' in navigator) {

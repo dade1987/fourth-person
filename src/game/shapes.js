@@ -176,3 +176,119 @@ export function inhabitantMesh(wHalf = DEFAULT_W_HALF) {
   addBox(b, 1, [0, 0.34, 0, 0], [0.11, 0.11, 0.11], wHalf);
   return b.build();
 }
+
+// ---------------------------------------------------------------------------
+// Cose di tutti i giorni.
+//
+// Un tesseratto non l'hai mai tenuto in mano, quindi quando si rovescia non hai
+// niente da confrontare. Una tazza sì. Qui gli oggetti di casa hanno uno spessore
+// VERO nella quarta direzione: non sono figurine sottili, sono famiglie di tazze
+// impilate lungo w. In proiezione le vedi tutte insieme, annidate — la stessa
+// immagine del cubo dentro il cubo, ma fatta con una cosa che conosci.
+
+/** Tubo lungo l'asse y, con lo spessore in w che gli si dice. */
+export function addTube(b, id, center, radius, height, { wOffset = 0, wHalf = DEFAULT_W_HALF, segments = 28, thickness = 0 } = {}) {
+  const cell = b.beginCell(id, [center[0], center[1], center[2], wOffset]);
+  const ring = (r, y, w) => {
+    const out = [];
+    for (let i = 0; i < segments; i++) {
+      const a = (2 * Math.PI * i) / segments;
+      out.push([center[0] + Math.cos(a) * r, center[1] + y, center[2] + Math.sin(a) * r, w]);
+    }
+    return out;
+  };
+  const inner = thickness > 0 ? radius - thickness : 0;
+  for (const w of [wOffset - wHalf, wOffset + wHalf]) {
+    const lo = ring(radius, -height / 2, w);
+    const hi = ring(radius, height / 2, w);
+    for (let i = 0; i < segments; i++) {
+      const j = (i + 1) % segments;
+      cell.quad(lo[i], lo[j], hi[j], hi[i]);
+    }
+    if (inner > 0) {
+      const li = ring(inner, -height / 2, w);
+      const hiI = ring(inner, height / 2, w);
+      for (let i = 0; i < segments; i++) {
+        const j = (i + 1) % segments;
+        cell.quad(li[j], li[i], hiI[i], hiI[j]); // parete interna
+        cell.quad(hi[i], hi[j], hiI[j], hiI[i]); // bordo
+        cell.quad(lo[j], lo[i], li[i], li[j]);   // fondo
+      }
+    } else {
+      const c0 = [center[0], center[1] - height / 2, center[2], w];
+      const c1 = [center[0], center[1] + height / 2, center[2], w];
+      for (let i = 0; i < segments; i++) {
+        const j = (i + 1) % segments;
+        cell.tri(c0, lo[j], lo[i]);
+        cell.tri(c1, hi[i], hi[j]);
+      }
+    }
+  }
+  cell.end();
+  return cell;
+}
+
+/** Arco di toro: il manico della tazza, l'archetto del lucchetto. */
+export function addTorusArc(b, id, center, radius, tube, { from = 0, to = Math.PI, plane = 'xy', wOffset = 0, wHalf = DEFAULT_W_HALF, segments = 24, sides = 8 } = {}) {
+  const cell = b.beginCell(id, [center[0], center[1], center[2], wOffset]);
+  const point = (u, v, w) => {
+    const r = radius + tube * Math.cos(v);
+    const h = tube * Math.sin(v);
+    const cu = Math.cos(u);
+    const su = Math.sin(u);
+    if (plane === 'xy') return [center[0] + r * cu, center[1] + r * su, center[2] + h, w];
+    if (plane === 'xz') return [center[0] + r * cu, center[1] + h, center[2] + r * su, w];
+    return [center[0] + h, center[1] + r * cu, center[2] + r * su, w];
+  };
+  for (const w of [wOffset - wHalf, wOffset + wHalf]) {
+    for (let i = 0; i < segments; i++) {
+      const u0 = from + ((to - from) * i) / segments;
+      const u1 = from + ((to - from) * (i + 1)) / segments;
+      for (let j = 0; j < sides; j++) {
+        const v0 = (2 * Math.PI * j) / sides;
+        const v1 = (2 * Math.PI * (j + 1)) / sides;
+        cell.quad(point(u0, v0, w), point(u1, v0, w), point(u1, v1, w), point(u0, v1, w));
+      }
+    }
+  }
+  cell.end();
+  return cell;
+}
+
+/**
+ * La tazza, con vero spessore nella quarta direzione.
+ * `layers` fette lungo w, ognuna una cella: in proiezione si vedono annidate,
+ * in sezione ne resta una sola. Il profilo si stringe ai bordi, così la fetta
+ * che vedi dipende da dove sei — ed è tutto il punto.
+ */
+export function mugMesh({ layers = 5, span = 0.55, radius = 0.42, height = 0.62 } = {}) {
+  const b = builder();
+  for (let k = 0; k < layers; k++) {
+    const t = layers === 1 ? 0 : (k / (layers - 1)) * 2 - 1; // −1 … +1
+    const w = t * span;
+    const s = 1 - 0.34 * t * t; // il profilo si assottiglia agli estremi
+    const wHalf = (span / layers) * 0.75;
+    addTube(b, k, [0, 0, 0], radius * s, height * s, { wOffset: w, wHalf, thickness: 0.08 * s });
+    addTorusArc(b, k, [radius * s * 0.98, 0, 0], 0.22 * s, 0.055 * s, {
+      from: -Math.PI / 2, to: Math.PI / 2, plane: 'xy', wOffset: w, wHalf,
+    });
+  }
+  return b.build();
+}
+
+/** Il corpo del lucchetto. L'archetto è un oggetto a parte: deve poter uscire. */
+export function padlockBodyMesh(wHalf = 0.06) {
+  const b = builder();
+  addBox(b, 0, [0, 0, 0, 0], [0.34, 0.30, 0.16], wHalf);
+  addBox(b, 1, [0, -0.02, 0.17, 0], [0.09, 0.09, 0.02], wHalf * 0.9); // il buco della chiave
+  return b.build();
+}
+
+/** L'archetto: entra ed esce dal corpo passando per una direzione che il corpo non ha. */
+export function shackleMesh(wHalf = 0.05) {
+  const b = builder();
+  addTorusArc(b, 0, [0, 0.30, 0], 0.19, 0.05, { from: 0, to: Math.PI, plane: 'xy', wHalf });
+  addBox(b, 1, [-0.19, 0.16, 0, 0], [0.05, 0.15, 0.05], wHalf);
+  addBox(b, 2, [0.19, 0.16, 0, 0], [0.05, 0.15, 0.05], wHalf);
+  return b.build();
+}

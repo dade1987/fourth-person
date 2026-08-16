@@ -46,7 +46,11 @@
     "tapToCount": "tocca un angolo",
     "howMany": "quanti spigoli partono da lì?",
     "wrong": "riprova",
-    "noWebgl": "Questo telefono non riesce a disegnare la scena. Serve un browser con WebGL2."
+    "noWebgl": "Questo telefono non riesce a disegnare la scena. Serve un browser con WebGL2.",
+    "everyday": "cose di tutti i giorni",
+    "mug": "tazza",
+    "lucchetto": "lucchetto",
+    "everydayHint": "Trascina per girarla nella quarta direzione. Il lucchetto si apre da solo: toccalo."
   },
   "chapters": [
     {

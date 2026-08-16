@@ -6,6 +6,7 @@
 import { polytope, buildMesh } from '../math4d/polytope.js';
 import { moveWithCollision } from '../math4d/collide.js';
 import { makeCamera4, setPlayerW, rotateCamera, makeTransform4, rotateTransform, W_DISTANCE } from '../render/project.js';
+import { planeRotation } from '../math4d/rotor.js';
 import { makeSliceMode, updateSlice, setMode, toggle as toggleSlice, currentName } from '../render/slice.js';
 import { PLANE_NAMES } from '../math4d/bivector.js';
 import * as shapes from './shapes.js';
@@ -29,6 +30,9 @@ const TINTS = {
   lock: [0.60, 0.64, 0.75],
   npc: [0.70, 0.74, 0.85],
   cube: [0.62, 0.82, 1.0],
+  mug: [0.95, 0.93, 0.88],
+  padlock: [0.78, 0.82, 0.90],
+  shackle: [0.88, 0.90, 0.96],
 };
 
 export function createWorld(renderer) {
@@ -89,6 +93,7 @@ export function createWorld(renderer) {
   const DEFAULT_VIEW = { scale3: SCALE_3D, offset3: OFFSET_3D, floorY: FLOOR_Y, shadowRadius: 0.16 };
   const VIEWS = {
     coldopen: { scale3: 0.055, offset3: [0, 0.014, -0.112], floorY: -0.058, shadowRadius: 0.20 },
+    oggetti: { scale3: 0.062, offset3: [0, 0.010, -0.100], floorY: -0.062, shadowRadius: 0.22 },
     cube: { scale3: 0.060, offset3: [0, 0.020, -0.058], floorY: -0.085, shadowRadius: 0.22 },
     box: { scale3: 0.038, offset3: [0, 0.012, -0.130], floorY: -0.050, shadowRadius: 0.20 },
     room: { scale3: 0.038, offset3: [0, 0.012, -0.130], floorY: -0.050, shadowRadius: 0.20 },
@@ -109,6 +114,10 @@ export function createWorld(renderer) {
     listeners: [],
     autoSpin: { xw: 0.30, zw: 0.18, xy: 0 },
     lastW: 0,
+    /** Coreografie scritte a mano: il rallentatore sta dentro la curva del tempo. */
+    padlockAnim: null,
+    mirrorAnim: null,
+    showcase: 'mug',
     spinTarget: null,
     events: [],
 
@@ -242,8 +251,27 @@ export function createWorld(renderer) {
             const lock = shapeObject('lock', () => shapes.handMesh(-1), TINTS.lock, { glass: 1, opacity: 0.5 });
             lock.role = 'lock';
             lock.transform.position.set([2.4, 0.1, -2.2, 0]);
-            world.objects.push(hMesh, lock);
+            // il fantasma della forma di partenza: compare solo dopo il mezzo giro,
+            // e lascia che sia il giocatore ad accorgersene
+            const ghost = shapeObject('handGhost', () => shapes.handMesh(1), TINTS.hand, { glass: 1, opacity: 0 });
+            ghost.role = 'handGhost';
+            ghost.transform.position.set([1.2, 0.1, -1.0, 0]);
+            world.objects.push(hMesh, lock, ghost);
           }
+          break;
+        }
+        case 'oggetti': {
+          const mug = shapeObject('mug', () => shapes.mugMesh(), TINTS.mug, { glass: 1 });
+          mug.role = 'showcase';
+          mug.showcase = 'mug';
+          const body = shapeObject('padlockBody', () => shapes.padlockBodyMesh(), TINTS.padlock, { glass: 0 });
+          body.role = 'padlockBody';
+          body.showcase = 'lucchetto';
+          const shackle = shapeObject('shackle', () => shapes.shackleMesh(), TINTS.shackle, { glass: 0 });
+          shackle.role = 'shackle';
+          shackle.showcase = 'lucchetto';
+          world.objects.push(mug, body, shackle);
+          world.setShowcase(world.showcase);
           break;
         }
         default:
@@ -252,12 +280,88 @@ export function createWorld(renderer) {
       world.emit('stage', { stage: name });
     },
 
+    /** Quale oggetto di casa è in vetrina. */
+    setShowcase(name) {
+      world.showcase = name;
+      world.padlockAnim = null;
+      for (const o of world.objects) {
+        if (!o.showcase) continue;
+        o.opacity = o.showcase === name ? 1 : 0;
+        if (o.showcase === name) o.transform.position.set([0, 0, 0, 0]);
+      }
+      world.emit('showcase', { name });
+    },
+
+    nextShowcase() {
+      const order = ['mug', 'lucchetto'];
+      const i = (order.indexOf(world.showcase) + 1) % order.length;
+      world.setShowcase(order[i]);
+      return order[i];
+    },
+
+    /**
+     * Il lucchetto si apre senza rompersi: l'archetto esce dalla fetta, passa
+     * attraverso il corpo e riscende accanto. Rallentatore al 40% nel passaggio
+     * critico — è l'unica volta in cui si tocca il tempo, e per questo funziona.
+     */
+    playPadlock() {
+      if (world.showcase !== 'lucchetto' || world.padlockAnim) return false;
+      world.padlockAnim = { t: 0 };
+      world.emit('padlock', { phase: 'start' });
+      return true;
+    },
+
+    /** Mezzo giro in xw, mostrato per intero e lento: la mano torna specchiata. */
+    playMirror() {
+      if (world.mirrorAnim) return false;
+      world.mirrorAnim = { t: 0 };
+      world.emit('mirror', { phase: 'start' });
+      return true;
+    },
+
     /** Un fotogramma di mondo. */
     update(dt, input = {}) {
       world.time += dt;
 
+      // ---- coreografia del lucchetto (SPEC §6: rallentatore nel passaggio critico)
+      if (world.padlockAnim) {
+        const a = world.padlockAnim;
+        a.t += dt / 2.6;
+        const k = Math.min(1, a.t);
+        const p1 = Math.min(1, Math.max(0, k * 3.2));
+        // il passaggio attraverso il corpo scorre al 40%: dura più di tutto il resto
+        const p2raw = Math.min(1, Math.max(0, (k - 0.34) / 0.40));
+        const p2 = p2raw * p2raw * (3 - 2 * p2raw);
+        const p3 = Math.min(1, Math.max(0, (k - 0.78) / 0.22));
+        const shackle = world.objects.find((o) => o.role === 'shackle');
+        if (shackle) {
+          shackle.transform.position[0] = 0.95 * p2;
+          shackle.transform.position[3] = 0.62 * (p1 - p3);
+        }
+        if (k >= 1) {
+          world.padlockAnim = null;
+          world.emit('padlock', { phase: 'done' });
+        }
+      }
+
+      // ---- il ritorno specchiato: 1,8 s, per intero, mai tagliato
+      if (world.mirrorAnim) {
+        const a = world.mirrorAnim;
+        a.t += dt / 1.8;
+        const k = Math.min(1, a.t);
+        const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        const hand = world.objects.find((o) => o.role === 'hand');
+        if (hand) hand.transform.rotation = planeRotation(0, 3, Math.PI * e);
+        if (k >= 1) {
+          world.mirrorAnim = null;
+          const ghost = world.objects.find((o) => o.role === 'handGhost');
+          if (ghost) ghost.opacity = 0.32; // il confronto, senza una parola sopra
+          world.emit('mirror', { phase: 'done' });
+        }
+      }
+
       // rotazione automatica: solo dove serve (cold open, capitolo finale)
-      const obj = world.objects.find((o) => o.role === 'polytope' || o.role === 'cube');
+      const obj = world.objects.find((o) => o.role === 'polytope' || o.role === 'cube' || o.role === 'showcase');
       if (obj && obj.role === 'polytope') {
         if (world.autoSpin.xw) rotateTransform(obj.transform, PLANE_NAMES.indexOf('xw'), world.autoSpin.xw * dt);
         if (world.autoSpin.zw) rotateTransform(obj.transform, PLANE_NAMES.indexOf('zw'), world.autoSpin.zw * dt);
