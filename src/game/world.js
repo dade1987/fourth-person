@@ -15,7 +15,7 @@ import { createSealedBoxPuzzle } from './puzzles/sealedbox.js';
 import { createRingsPuzzle } from './puzzles/rings.js';
 import { createHandPuzzle } from './puzzles/hand.js';
 
-export const SCALE_3D = 0.044; // metri per unità del volume-retina
+export const SCALE_3D = 0.028; // metri per unità del volume-retina
 export const OFFSET_3D = [0, 0.012, -0.125];
 export const FLOOR_Y = -0.050;
 
@@ -50,7 +50,8 @@ export function createWorld(renderer) {
 
   function polytopeObject(name, tint, { scale = null } = {}) {
     const poly = polytope(name);
-    const s = scale ?? 1 / poly.circumradius;
+    // 1,6 volte il raggio unitario: più estensione in w = nidificazione più marcata
+    const s = scale ?? 1.6 / poly.circumradius;
     const entry = gpuFor(`poly:${name}:${s}`, () => {
       const mesh = buildMesh(poly, { scale: s });
       mesh.cells = poly.cells.map((c) => ({
@@ -98,7 +99,7 @@ export function createWorld(renderer) {
   // proprio di quella. Là l'oggetto sta più vicino al vetro, e le facce si aprono.
   const DEFAULT_VIEW = { scale3: SCALE_3D, offset3: OFFSET_3D, floorY: FLOOR_Y, shadowRadius: 0.16 };
   const VIEWS = {
-    coldopen: { scale3: 0.055, offset3: [0, 0.014, -0.112], floorY: -0.058, shadowRadius: 0.20 },
+    coldopen: { scale3: 0.034, offset3: [0, 0.014, -0.112], floorY: -0.058, shadowRadius: 0.20 },
     oggetti: { scale3: 0.062, offset3: [0, 0.010, -0.100], floorY: -0.062, shadowRadius: 0.22 },
     cube: { scale3: 0.060, offset3: [0, 0.020, -0.058], floorY: -0.085, shadowRadius: 0.22 },
     box: { scale3: 0.030, offset3: [0, 0.014, -0.140], floorY: -0.044, shadowRadius: 0.20 },
@@ -244,8 +245,8 @@ export function createWorld(renderer) {
           if (name === 'room') {
             const rings = createRingsPuzzle({ center: [-1.7, 0.05, -0.5] });
             world.puzzles.rings = rings;
-            const rA = shapeObject('ringA', () => shapes.ringMesh({ radius: rings.radius, tube: 0.11, plane: 'xy' }), TINTS.ring, { glass: 1 });
-            const rB = shapeObject('ringB', () => shapes.ringMesh({ radius: rings.radius, tube: 0.11, plane: 'xz' }), TINTS.ring, { glass: 1 });
+            const rA = shapeObject('ringA', () => shapes.ringMesh({ radius: rings.radius, tube: 0.11, plane: 'xy' }), TINTS.ring, { glass: 0 });
+            const rB = shapeObject('ringB', () => shapes.ringMesh({ radius: rings.radius, tube: 0.11, plane: 'xz' }), TINTS.ring, { glass: 0 });
             rA.role = 'ringA';
             rB.role = 'ringB';
             rA.transform.position.set(rings.positionA);
@@ -409,8 +410,10 @@ export function createWorld(renderer) {
         const right = [R[0], R[4], R[8], R[12]];
         const fwd = [R[2], R[6], R[10], R[14]];
         const target = Float64Array.from(world.player);
+        // `fwd` è l'asse +z della camera, che punta VERSO di te: avanti è −fwd.
+        // Il dito verso l'alto dà move.y = −1, quindi il segno giusto è +fwd·move.y.
         for (let i = 0; i < 4; i++) {
-          target[i] += (right[i] * move.x - fwd[i] * move.y) * speed * dt;
+          target[i] += (right[i] * move.x + fwd[i] * move.y) * speed * dt;
         }
         target[1] = world.player[1];
         const next = world.blockers.length

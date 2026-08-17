@@ -40,18 +40,29 @@
   .gone { display: none !important; }
 
   /* ---------------------------------------------------------------- testo */
+  /* Una colonna sola: i testi si impilano, non si sovrappongono mai, e stanno
+     sopra la fascia dei comandi invece che addosso. */
+  #texts {
+    /* si ferma prima della colonna del cursore w: i testi non ci vanno mai sotto */
+    position: absolute; left: 0; right: calc(74px + env(safe-area-inset-right));
+    bottom: calc(178px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 14px var(--pad) 10px; pointer-events: none;
+    background: linear-gradient(to top, rgba(6,7,10,.72), rgba(6,7,10,.45) 55%, rgba(6,7,10,0));
+  }
+  #texts > * { pointer-events: auto; }
   #subtitle {
-    position: absolute; left: 0; right: 0; bottom: calc(150px + env(safe-area-inset-bottom));
-    margin: 0 auto; max-width: 34rem; padding: 0 var(--pad);
-    text-align: center; font-size: clamp(17px, 4.4vw, 22px); line-height: 1.4;
-    text-shadow: 0 2px 18px rgba(0,0,0,.85), 0 0 2px rgba(0,0,0,.9);
+    margin: 0 auto; max-width: 34rem; text-align: center;
+    font-size: clamp(16px, 4.2vw, 21px); line-height: 1.38;
+    text-shadow: 0 2px 18px rgba(0,0,0,.9);
   }
   #action {
-    position: absolute; left: 0; right: 0; bottom: calc(108px + env(safe-area-inset-bottom));
-    text-align: center; padding: 0 var(--pad); color: var(--accent);
-    font-size: clamp(15px, 3.9vw, 19px); font-weight: 600;
-    text-shadow: 0 2px 14px rgba(0,0,0,.9);
+    max-width: 34rem; text-align: center; color: var(--accent);
+    font-size: clamp(15px, 3.9vw, 18px); font-weight: 600; line-height: 1.35;
+    text-shadow: 0 2px 14px rgba(0,0,0,.95);
   }
+  /* nascosto vuol dire fuori dal flusso: niente spazi vuoti fra i due testi */
+  #subtitle.hidden, #action.hidden { display: none; }
   #chapterTitle {
     position: absolute; top: calc(62px + env(safe-area-inset-top)); left: 0; right: 0; padding: 0 18px;
     text-align: center; color: var(--dim); font-size: 13px; letter-spacing: .09em; text-transform: lowercase;
@@ -68,7 +79,7 @@
   .btn:active { transform: scale(.96); background: rgba(255,255,255,.14); }
   .btn.primary { background: rgba(142,197,255,.16); border-color: rgba(142,197,255,.5); color: #dcecff; }
   #choices {
-    position: absolute; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom));
+    position: absolute; left: 0; right: 0; bottom: calc(150px + env(safe-area-inset-bottom));
     display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 var(--pad);
   }
 
@@ -183,7 +194,7 @@
   }
 
   #flatstrip { width: min(92vw, 30rem); height: 46px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); display: block; margin: 0 auto; }
-  #flatwrap { position: absolute; left: 0; right: 0; bottom: calc(190px + env(safe-area-inset-bottom)); padding: 0 var(--pad); }
+  #flatwrap { position: absolute; left: 0; right: 0; bottom: calc(232px + env(safe-area-inset-bottom)); padding: 0 var(--pad); }
 
   /* Gli obiettivi: cosa ci fai qui dentro. Senza, è una stanza con degli oggetti. */
   #goals {
@@ -208,7 +219,7 @@
     position: absolute; left: 0; right: 0; top: calc(84px + env(safe-area-inset-top));
     text-align: center; font-size: 15px; color: var(--accent);
   }
-  #share { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(200px + env(safe-area-inset-bottom)); }
+  #share { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(252px + env(safe-area-inset-bottom)); }
   #share.hidden { transform: translateX(-50%) translateY(6px); }
   #recdot { position: absolute; top: calc(14px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); font-size: 12px; color: #ff8a8a; }
   #fatal { position: absolute; inset: 0; display: grid; place-items: center; padding: 8vw; text-align: center; color: var(--dim); }
@@ -235,8 +246,10 @@
   </div>
   <div id="toast" class="fade hidden"></div>
   <div id="recdot" class="fade hidden">● 6s</div>
-  <div id="subtitle" class="fade hidden"></div>
-  <div id="action" class="fade hidden"></div>
+  <div id="texts">
+    <div id="subtitle" class="fade hidden"></div>
+    <div id="action" class="fade hidden"></div>
+  </div>
   <div id="flatwrap" class="fade hidden"><canvas id="flatstrip"></canvas></div>
   <div id="choices" class="fade hidden"></div>
   <button id="share" class="btn primary fade hidden">manda a un amico</button>

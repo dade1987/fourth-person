@@ -10,8 +10,13 @@
 import { identity, mul, planeRotation, transpose, applyT, orthonormalize } from '../math4d/rotor.js';
 import { PLANES, PLANE_NAMES } from '../math4d/bivector.js';
 
-/** Distanza in w fra la camera 4D e la fetta abitata: è il "fuoco" della proiezione. */
-export const W_DISTANCE = 3.2;
+/**
+ * Distanza in w fra la camera 4D e la fetta abitata: è il "fuoco" della proiezione,
+ * e decide quanto la quarta dimensione si vede. A 3,2 la cella lontana era al 73%
+ * di quella vicina e il tesseratto sembrava una scatola foderata; a 2,5 sta poco
+ * sopra la metà, ed è il rapporto delle immagini classiche.
+ */
+export const W_DISTANCE = 2.5;
 export const NEAR_W = 0.35;
 
 export function makeCamera4() {

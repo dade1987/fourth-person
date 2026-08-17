@@ -128,6 +128,10 @@ void main() {
   vec3 solidColor = uTint * (0.22 + 0.78 * lam);
   vec3 H = normalize(normalize(uLightDir) + V);
   solidColor += vec3(1.0) * pow(max(dot(N, H), 0.0), 48.0) * 0.5;
+  // bordo di luce: stacca l'oggetto dal fondo e gli dà un volume vero
+  solidColor += uTint * pow(1.0 - cosT, 3.0) * 0.45;
+  // cielo dall'alto, terra dal basso: due sorgenti, non una lampada sola
+  solidColor += mix(vec3(0.06, 0.07, 0.10), vec3(0.16, 0.19, 0.26), N.y * 0.5 + 0.5);
 
   vec3 color = mix(solidColor, glassColor, uGlass);
 

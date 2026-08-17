@@ -21,7 +21,7 @@ const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
   args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'],
 });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'it-IT' });
+const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, locale: 'it-IT' });
 await page.goto(`${BASE}/index.html?fast=1`);
 await page.waitForFunction(() => !!window.__fp && window.__fp.renderer.state.frames > 3, null, { timeout: 30000 });
 await page.evaluate(() => {
@@ -37,7 +37,7 @@ await page.evaluate(() => {
 const frames = [];
 let H = 0;
 for (let k = 0; k < N; k++) {
-  const a = (2 * Math.PI * k) / N + 0.42; // il primo fotogramma è già leggermente girato
+  const a = (2 * Math.PI * k) / N + 0.14; // il primo fotogramma è quasi frontale: il cubo dentro il cubo si legge subito
   await page.evaluate((a) => {
     const fp = window.__fp;
     const obj = fp.world.objects.find((o) => o.role === 'polytope');
