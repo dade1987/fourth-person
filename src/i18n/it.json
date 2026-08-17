@@ -34,8 +34,8 @@
     "share": "manda a un amico",
     "sharing": "sto registrando sei secondi…",
     "shared": "fatto",
-    "projection": "ombra",
-    "section": "fetta",
+    "projection": "tutta",
+    "section": "una fetta",
     "modeHint": "quello che vedi è una proiezione: una dimensione l'abbiamo persa per forza",
     "wButton": "W",
     "wLabel": "quarta direzione",
@@ -50,7 +50,13 @@
     "everyday": "cose di tutti i giorni",
     "mug": "tazza",
     "lucchetto": "lucchetto",
-    "everydayHint": "Trascina per girarla nella quarta direzione. Il lucchetto si apre da solo: toccalo."
+    "everydayHint": "Trascina per girarla nella quarta direzione. Il lucchetto si apre da solo: toccalo.",
+    "goals": "obiettivi",
+    "modeHintProjection": "la vedi tutta insieme, schiacciata: come l'ombra di una gabbia sul muro",
+    "modeHintSection": "ne vedi una fetta sola, nitida: tutto il resto è nascosto",
+    "wCaption": "quarta direzione",
+    "wExplain": "W: adesso la levetta destra gira nei piani che contengono la quarta direzione. È l'unico modo per rovesciare un oggetto.",
+    "wSliderExplain": "Questo cursore ti sposta nella quarta direzione: è il verso in cui la cassa non ha un coperchio."
   },
   "chapters": [
     {
@@ -164,5 +170,13 @@
     "youAreAt": "sei a",
     "outOfSlice": "sei fuori dalla loro fetta",
     "inSlice": "sei nella loro fetta"
+  },
+  "objectives": {
+    "title": "cosa ci fai qui",
+    "intro": "Sei l'unico che può uscire dalla loro fetta. Loro no: sono fermi in tre dimensioni, e quello che è chiuso per loro non lo è per te.",
+    "sealed-box": "Tira fuori la cosa dalla cassa sigillata",
+    "rings": "Separa i due anelli senza romperli",
+    "hand": "Fai entrare la mano nella serratura specchiata",
+    "allDone": "Tre cose che da dentro la loro fetta erano impossibili. Non hai rotto niente: sei passato di fianco."
   }
 }

@@ -90,15 +90,13 @@ test('la Scala si percorre tutta, e ogni capitolo aspetta il giocatore', async (
 
 /** L'enigma risolto con i comandi veri: cursore w, stick di movimento. */
 async function solveSealedBox(page) {
-  const setMove = (m) => page.evaluate((v) => {
-    window.__fp.controls.state.move = v;
-  }, m);
+  const setMove = (m) => page.evaluate((v) => window.__fp.controls.setMove(v), m);
   const stop = () => setMove({ x: 0, y: 0 });
   const setW = (w) => page.evaluate((v) => window.__fp.controls.setW(v), w);
   const player = () => page.evaluate(() => [...window.__fp.world.player]);
 
   /** Cammina finché la condizione non è vera, poi si ferma. */
-  const walkUntil = async (move, done, timeout = 12000) => {
+  const walkUntil = async (move, done, timeout = 20000) => {
     await setMove(move);
     const t0 = Date.now();
     while (Date.now() - t0 < timeout) {
@@ -109,11 +107,11 @@ async function solveSealedBox(page) {
   };
 
   await setW(0.7); // fuori dalla fetta: la cassa non è più un ostacolo
-  await walkUntil({ x: 0, y: 1 }, (p) => Math.abs(p[2]) < 0.18); // sopra il coperchio
+  await walkUntil({ x: 0, y: 1 }, (p) => Math.abs(p[2]) < 0.25, 25000); // sopra il coperchio
   await setW(0); // e giù, dentro
   await page.waitForFunction(() => window.__fp.world.puzzles.box.state.holding, null, { timeout: 20000 });
   await setW(0.7);
-  await walkUntil({ x: 0, y: -1 }, (p) => p[2] > 1.1); // indietro, fuori dalla cassa
+  await walkUntil({ x: 0, y: -1 }, (p) => p[2] > 1.3, 25000); // indietro, fuori dalla cassa
   await setW(0);
   await page.waitForFunction(() => window.__fp.world.puzzles.box.state.solved, null, { timeout: 20000 });
 }
@@ -126,13 +124,9 @@ test('un enigma si risolve con i comandi, e solo uscendo dalla fetta', async ({ 
 
   // restando nella fetta la cassa tiene: si sbatte contro la parete
   const before = await page.evaluate(() => [...window.__fp.world.player]);
-  await page.evaluate(() => {
-    window.__fp.controls.state.move = { x: 0, y: 1 };
-  });
-  await page.waitForTimeout(2200);
-  await page.evaluate(() => {
-    window.__fp.controls.state.move = { x: 0, y: 0 };
-  });
+  await page.evaluate(() => window.__fp.controls.setMove({ x: 0, y: 1 }));
+  await page.waitForTimeout(3200);
+  await page.evaluate(() => window.__fp.controls.setMove({ x: 0, y: 0 }));
   const blocked = await page.evaluate(() => [...window.__fp.world.player]);
   expect(await page.evaluate(() => window.__fp.world.puzzles.box.state.holding)).toBeFalsy();
   expect(Math.abs(blocked[2])).toBeGreaterThan(0.5); // la parete lo ha fermato
@@ -165,13 +159,9 @@ test('toccare la chiave fa qualcosa: o la prende, o dice perché no', async ({ p
 
   // e una volta dentro, si prende
   await page.evaluate(() => window.__fp.controls.setW(0.7));
-  await page.evaluate(() => {
-    window.__fp.controls.state.move = { x: 0, y: 1 };
-  });
-  await page.waitForFunction(() => Math.abs(window.__fp.world.player[2]) < 0.18, null, { timeout: 15000 });
-  await page.evaluate(() => {
-    window.__fp.controls.state.move = { x: 0, y: 0 };
-  });
+  await page.evaluate(() => window.__fp.controls.setMove({ x: 0, y: 1 }));
+  await page.waitForFunction(() => Math.abs(window.__fp.world.player[2]) < 0.25, null, { timeout: 25000 });
+  await page.evaluate(() => window.__fp.controls.setMove({ x: 0, y: 0 }));
   await page.evaluate(() => window.__fp.controls.setW(0));
   await page.waitForFunction(() => window.__fp.world.puzzles.box.state.holding, null, { timeout: 10000 });
 });

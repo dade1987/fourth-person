@@ -23,17 +23,19 @@ const TINTS = {
   tesseract: [0.55, 0.78, 1.0],
   sixteen: [1.0, 0.72, 0.45],
   twentyfour: [0.72, 1.0, 0.78],
-  box: [0.85, 0.86, 0.92],
-  key: [1.0, 0.86, 0.35],
-  ring: [0.95, 0.55, 0.75],
-  hand: [0.98, 0.80, 0.66],
-  lock: [0.60, 0.64, 0.75],
-  npc: [0.70, 0.74, 0.85],
+  box: [0.70, 0.86, 0.95],
+  key: [1.0, 0.82, 0.42],
+  ring: [0.92, 0.76, 0.45],
+  hand: [0.94, 0.78, 0.64],
+  lock: [0.62, 0.68, 0.80],
+  npc: [0.66, 0.72, 0.86],
   cube: [0.62, 0.82, 1.0],
   mug: [0.95, 0.93, 0.88],
   padlock: [0.78, 0.82, 0.90],
   shackle: [0.88, 0.90, 0.96],
 };
+
+const easeOut = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
 
 export function createWorld(renderer) {
   const meshCache = new Map();
@@ -67,6 +69,10 @@ export function createWorld(renderer) {
       tint,
       glass: 1,
       opacity: 1,
+      cellHue: 1, // sui politopi le otto celle devono distinguersi tutte
+      // i bordi accesi sopra il vetro: è quello che rende leggibile "cubo dentro cubo"
+      wireOverlay: true,
+      wireTint: [1.0, 0.98, 0.92],
     };
   }
 
@@ -95,8 +101,8 @@ export function createWorld(renderer) {
     coldopen: { scale3: 0.055, offset3: [0, 0.014, -0.112], floorY: -0.058, shadowRadius: 0.20 },
     oggetti: { scale3: 0.062, offset3: [0, 0.010, -0.100], floorY: -0.062, shadowRadius: 0.22 },
     cube: { scale3: 0.060, offset3: [0, 0.020, -0.058], floorY: -0.085, shadowRadius: 0.22 },
-    box: { scale3: 0.038, offset3: [0, 0.012, -0.130], floorY: -0.050, shadowRadius: 0.20 },
-    room: { scale3: 0.038, offset3: [0, 0.012, -0.130], floorY: -0.050, shadowRadius: 0.20 },
+    box: { scale3: 0.030, offset3: [0, 0.014, -0.140], floorY: -0.044, shadowRadius: 0.20 },
+    room: { scale3: 0.030, offset3: [0, 0.014, -0.140], floorY: -0.044, shadowRadius: 0.20 },
   };
 
   const world = {
@@ -105,6 +111,8 @@ export function createWorld(renderer) {
     time: 0,
     stage: 'coldopen',
     view: DEFAULT_VIEW,
+    /** L'entrata in scena: 0,7 s in cui tutto si posa invece di comparire. */
+    enter: 1,
     geometry: 'glass', // glass | solid | wire
     player: new Float64Array([0, 0, 2.4, 0]),
     objects: [],
@@ -159,6 +167,7 @@ export function createWorld(renderer) {
     setStage(name) {
       world.stage = name;
       world.view = VIEWS[name] || DEFAULT_VIEW;
+      world.enter = 0;
       world.objects = [];
       world.blockers = [];
       world.inhabitants = [];
@@ -230,10 +239,10 @@ export function createWorld(renderer) {
           world.inhabitants = createInhabitants(4, 2.0);
           const npcMesh = shapeObject('npc', () => shapes.inhabitantMesh(), TINTS.npc, { glass: 0 });
           world.npcTemplate = npcMesh;
-          world.player.set([0, 0, 1.9, 0]);
-          camera.position[2] = 1.9;
+          world.player.set([0, 0, 2.6, 0]);
+          camera.position[2] = 2.6;
           if (name === 'room') {
-            const rings = createRingsPuzzle({ center: [-2.2, 0.1, -1.0] });
+            const rings = createRingsPuzzle({ center: [-1.7, 0.05, -0.5] });
             world.puzzles.rings = rings;
             const rA = shapeObject('ringA', () => shapes.ringMesh({ radius: rings.radius, tube: 0.11, plane: 'xy' }), TINTS.ring, { glass: 1 });
             const rB = shapeObject('ringB', () => shapes.ringMesh({ radius: rings.radius, tube: 0.11, plane: 'xz' }), TINTS.ring, { glass: 1 });
@@ -243,25 +252,25 @@ export function createWorld(renderer) {
             rB.transform.position.set(rings.positionB);
             world.objects.push(rA, rB);
 
-            const hand = createHandPuzzle({ position: [2.4, 0.1, -1.0] });
+            const hand = createHandPuzzle({ position: [1.7, 0.05, -0.5] });
             world.puzzles.hand = hand;
             const hMesh = shapeObject('hand', () => shapes.handMesh(1), TINTS.hand, { glass: 0 });
             hMesh.role = 'hand';
             hMesh.transform = hand.transform;
             const lock = shapeObject('lock', () => shapes.handMesh(-1), TINTS.lock, { glass: 1, opacity: 0.5 });
             lock.role = 'lock';
-            lock.transform.position.set([2.4, 0.1, -2.2, 0]);
+            lock.transform.position.set([1.7, 0.05, -1.5, 0]);
             // il fantasma della forma di partenza: compare solo dopo il mezzo giro,
             // e lascia che sia il giocatore ad accorgersene
             const ghost = shapeObject('handGhost', () => shapes.handMesh(1), TINTS.hand, { glass: 1, opacity: 0 });
             ghost.role = 'handGhost';
-            ghost.transform.position.set([1.2, 0.1, -1.0, 0]);
+            ghost.transform.position.set([0.9, 0.05, -0.5, 0]);
             world.objects.push(hMesh, lock, ghost);
           }
           break;
         }
         case 'oggetti': {
-          const mug = shapeObject('mug', () => shapes.mugMesh(), TINTS.mug, { glass: 1 });
+          const mug = shapeObject('mug', () => shapes.mugMesh(), TINTS.mug, { glass: 1, cellHue: 1 });
           mug.role = 'showcase';
           mug.showcase = 'mug';
           const body = shapeObject('padlockBody', () => shapes.padlockBodyMesh(), TINTS.padlock, { glass: 0 });
@@ -322,6 +331,7 @@ export function createWorld(renderer) {
     /** Un fotogramma di mondo. */
     update(dt, input = {}) {
       world.time += dt;
+      world.enter = Math.min(1, world.enter + dt / 0.7);
 
       // ---- coreografia del lucchetto (SPEC §6: rallentatore nel passaggio critico)
       if (world.padlockAnim) {
@@ -371,11 +381,11 @@ export function createWorld(renderer) {
       // sguardo: si ruota in un piano, mai attorno a un asse
       if (input.look && (input.look.x || input.look.y)) {
         if (input.wMode) {
-          rotateCamera(camera, PLANE_NAMES.indexOf('xw'), input.look.x * dt * 1.1);
-          rotateCamera(camera, PLANE_NAMES.indexOf('yw'), -input.look.y * dt * 1.1);
+          rotateCamera(camera, PLANE_NAMES.indexOf('xw'), input.look.x * dt * 0.65);
+          rotateCamera(camera, PLANE_NAMES.indexOf('yw'), -input.look.y * dt * 0.65);
         } else {
-          rotateCamera(camera, PLANE_NAMES.indexOf('xz'), input.look.x * dt * 1.5);
-          rotateCamera(camera, PLANE_NAMES.indexOf('yz'), -input.look.y * dt * 1.2);
+          rotateCamera(camera, PLANE_NAMES.indexOf('xz'), input.look.x * dt * 0.85);
+          rotateCamera(camera, PLANE_NAMES.indexOf('yz'), -input.look.y * dt * 0.7);
         }
       }
 
@@ -393,7 +403,7 @@ export function createWorld(renderer) {
 
       // traslazione: quattro direzioni, e la quarta è come le altre
       const move = input.move || { x: 0, y: 0 };
-      const speed = 1.35;
+      const speed = 0.85;
       if (move.x || move.y) {
         const R = camera.orientation;
         const right = [R[0], R[4], R[8], R[12]];
@@ -469,7 +479,8 @@ export function createWorld(renderer) {
         camera,
         sliceMode,
         objects,
-        scale3: world.view.scale3,
+        // la scena entra avvicinandosi appena: cubic-bezier, mai lineare
+        scale3: world.view.scale3 * (0.90 + 0.10 * easeOut(world.enter)),
         offset3: world.view.offset3,
         floorY: world.view.floorY,
         shadowRadius: world.view.shadowRadius,
@@ -478,6 +489,11 @@ export function createWorld(renderer) {
         fogDensity: 0.42,
         floorFogDensity: 1.6,
         shadows: true,
+        // la stanza degli abitanti sta dentro un ambiente vero (finto, per ora)
+        backdrop: world.stage === 'room' || world.stage === 'box',
+        backdropDim: 1.12,
+        bloom: true,
+        bloomStrength: 0.9,
         time: world.time,
       };
     },

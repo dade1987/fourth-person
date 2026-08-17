@@ -14,8 +14,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # Nessuna dipendenza: i test della matematica girano con Node e basta.
-      - run: npm test
+      # Nessuna dipendenza: i test girano con Node e basta.
+      # La copertura è una soglia, non un rapporto da guardare: se la parte pura
+      # scende sotto, la build si ferma. Il rendering GPU è escluso apposta —
+      # coprirlo con finti test farebbe salire il numero e abbassare la fiducia.
+      - run: npm run test:coverage
 
   e2e:
     name: end-to-end

@@ -34,8 +34,8 @@
     "share": "send it to a friend",
     "sharing": "recording six seconds…",
     "shared": "done",
-    "projection": "shadow",
-    "section": "slice",
+    "projection": "all of it",
+    "section": "one slice",
     "modeHint": "what you see is a projection: one dimension had to go",
     "wButton": "W",
     "wLabel": "fourth direction",
@@ -50,7 +50,13 @@
     "everyday": "everyday things",
     "mug": "mug",
     "lucchetto": "padlock",
-    "everydayHint": "Drag to turn it in the fourth direction. The padlock opens on its own: tap it."
+    "everydayHint": "Drag to turn it in the fourth direction. The padlock opens on its own: tap it.",
+    "goals": "objectives",
+    "modeHintProjection": "you see all of it at once, flattened: like the shadow of a cage on a wall",
+    "modeHintSection": "you see a single slice, sharp: everything else is hidden",
+    "wCaption": "fourth direction",
+    "wExplain": "W: the right stick now turns in the planes that contain the fourth direction. It is the only way to turn an object inside out.",
+    "wSliderExplain": "This slider moves you in the fourth direction: the way in which the box has no lid."
   },
   "chapters": [
     {
@@ -164,5 +170,13 @@
     "youAreAt": "you are at",
     "outOfSlice": "you are outside their slice",
     "inSlice": "you are in their slice"
+  },
+  "objectives": {
+    "title": "what you're doing here",
+    "intro": "You are the only one who can step out of their slice. They cannot: they are stuck in three dimensions, and what is closed for them is not closed for you.",
+    "sealed-box": "Get the thing out of the sealed box",
+    "rings": "Separate the two rings without breaking them",
+    "hand": "Make the hand fit the mirrored lock",
+    "allDone": "Three things that were impossible from inside their slice. You broke nothing: you went around."
   }
 }

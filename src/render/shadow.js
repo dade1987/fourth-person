@@ -85,6 +85,7 @@ uniform float uObjectRadius;
 uniform float uFogDensity;
 uniform vec3 uFogColor;
 uniform float uGridScale;
+uniform float uShadowOnly;   // 1 = il pavimento è invisibile e resta solo l'ombra
 out vec4 frag;
 
 float shadowFactor() {
@@ -103,6 +104,17 @@ float shadowFactor() {
 }
 
 void main() {
+  if (uShadowOnly > 0.5) {
+    // sopra una stanza vera il pavimento non si disegna: si posa solo l'ombra
+    float sh = shadowFactor();
+    float d = length(vPos.xz - uObjectCenter.xz);
+    float contact = smoothstep(uObjectRadius * 1.9, uObjectRadius * 0.35, d);
+    float a = clamp((1.0 - sh) * 0.62 + contact * 0.34, 0.0, 0.92);
+    float dist = length(uEye3 - vPos);
+    a *= exp(-dist * uFogDensity * 0.5);
+    frag = vec4(0.0, 0.0, 0.0, a);
+    return;
+  }
   // griglia morbida: dà scala al pavimento senza rubare l'occhio
   vec2 g = abs(fract(vPos.xz * uGridScale) - 0.5) / fwidth(vPos.xz * uGridScale);
   float line = 1.0 - min(min(g.x, g.y), 1.0);

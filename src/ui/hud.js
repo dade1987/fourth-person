@@ -33,6 +33,7 @@ export function createHud() {
     flatwrap: $('flatwrap'),
     flatstrip: $('flatstrip'),
     wvalue: $('wvalue'),
+    wcaption: $('wcaption'),
     wknob: $('wknob'),
     wslider: $('wslider'),
     wrap: $('wrap'),
@@ -45,6 +46,10 @@ export function createHud() {
     modeSection: $('modeSection'),
     menuBtn: $('menuBtn'),
     objectChip: $('objectChip'),
+    goalChip: $('goalChip'),
+    goals: $('goals'),
+    goalsTitle: $('goalsTitle'),
+    goalsList: $('goalsList'),
   };
 
   let toastTimer = null;
@@ -174,6 +179,43 @@ export function createHud() {
       }
       el.objectChip.textContent = label;
       el.objectChip.classList.remove('gone', 'hidden');
+    },
+
+    /**
+     * Gli obiettivi. Un gioco in cui non si capisce cosa si deve fare non è
+     * difficile: è muto. Questa lista è la risposta alla domanda "e adesso?".
+     */
+    goals(title, items) {
+      if (!items) {
+        show(el.goals, false);
+        el.goalChip.classList.add('gone');
+        return;
+      }
+      el.goalsTitle.textContent = title;
+      el.goalsList.innerHTML = '';
+      let done = 0;
+      for (const it of items) {
+        const li = document.createElement('li');
+        li.className = it.done ? 'done' : '';
+        const mark = document.createElement('span');
+        mark.className = 'mark';
+        mark.textContent = it.done ? '✓' : '○';
+        const text = document.createElement('span');
+        text.textContent = it.text;
+        li.append(mark, text);
+        el.goalsList.appendChild(li);
+        if (it.done) done++;
+      }
+      el.goalChip.textContent = `${done}/${items.length}`;
+      el.goalChip.classList.remove('gone');
+    },
+
+    showGoals(on) {
+      show(el.goals, on);
+    },
+
+    goalsOpen() {
+      return !el.goals.classList.contains('hidden');
     },
 
     setMode(name) {

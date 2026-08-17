@@ -5,9 +5,10 @@
   "type": "module",
   "description": "Non puoi vedere la quarta dimensione. Puoi riconoscerla.",
   "scripts": {
-    "test": "node --test test/math4d.spec.js test/invariants.spec.js test/perception.spec.js",
+    "test": "node --test test/math4d.spec.js test/invariants.spec.js test/perception.spec.js test/coverage.spec.js test/puzzles.spec.js",
     "test:e2e": "playwright test",
-    "serve": "python3 -m http.server 8080"
+    "serve": "python3 -m http.server 8080",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=src/render/gl.js --test-coverage-exclude=src/render/renderer.js --test-coverage-exclude=src/render/glass.js --test-coverage-exclude=src/render/shadow.js --test-coverage-exclude=src/render/bloom.js --test-coverage-exclude=src/render/backdrop.js --test-coverage-exclude=src/ui/** --test-coverage-exclude=src/game/world.js --test-coverage-exclude=src/game/shapes.js --test-coverage-exclude=src/game/npc.js --test-coverage-exclude=src/onboarding/** --test-coverage-exclude=src/audio/** --test-coverage-exclude=src/capture/** --test-coverage-exclude=src/main.js --test-coverage-exclude=test/** --test-coverage-lines=99 --test-coverage-branches=93 --test-coverage-functions=98 test/math4d.spec.js test/invariants.spec.js test/perception.spec.js test/coverage.spec.js test/puzzles.spec.js"
   },
   "license": "MIT",
   "devDependencies": {

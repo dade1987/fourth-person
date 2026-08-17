@@ -25,41 +25,58 @@ export function createControls({ canvas, hud, onTap = () => {}, onWModeChange = 
 
   const pointers = new Map();
   let lastMotion = 0;
+  /** Il dito dà il bersaglio; quello che il gioco legge ci arriva smorzato. */
+  const target = { move: { x: 0, y: 0 }, look: { x: 0, y: 0 } };
 
-  function stickVector(el, e) {
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    let dx = (e.clientX - cx) / (r.width / 2);
-    let dy = (e.clientY - cy) / (r.height / 2);
-    const n = Math.hypot(dx, dy);
-    if (n > 1) {
-      dx /= n;
-      dy /= n;
-    }
-    return { x: dx, y: dy };
+  /** Zona morta e curva di risposta: vicino al centro il dito deve poter sbagliare. */
+  const DEAD_ZONE = 0.14;
+  const SMOOTH_SECONDS = 0.11;
+
+  function shape(x, y) {
+    const n = Math.hypot(x, y);
+    if (n < DEAD_ZONE) return { x: 0, y: 0 };
+    const k = Math.min(1, (n - DEAD_ZONE) / (1 - DEAD_ZONE));
+    const curve = k * k; // quadratica: piano vicino al centro, pieno solo in fondo
+    return { x: (x / n) * curve, y: (y / n) * curve };
   }
 
+  /**
+   * Levetta "flottante": nasce dove appoggi il dito, non al centro del cerchio.
+   * Senza questo, toccare il bordo dà subito tutta la velocità — ed è esattamente
+   * la sensazione di comando ingovernabile.
+   */
   function bindStick(el, knob, key) {
     let id = null;
+    let origin = null;
+    const radius = 52;
+
+    const set = (e) => {
+      const dx = (e.clientX - origin.x) / radius;
+      const dy = (e.clientY - origin.y) / radius;
+      const n = Math.hypot(dx, dy);
+      const cx = n > 1 ? dx / n : dx;
+      const cy = n > 1 ? dy / n : dy;
+      target[key] = shape(cx, cy);
+      knob.style.transform = `translate(${cx * 34}px, ${cy * 34}px)`;
+    };
+
     el.addEventListener('pointerdown', (e) => {
       id = e.pointerId;
       el.setPointerCapture(id);
-      const v = stickVector(el, e);
-      state[key] = v;
-      knob.style.transform = `translate(${v.x * 34}px, ${v.y * 34}px)`;
+      origin = { x: e.clientX, y: e.clientY };
+      target[key] = { x: 0, y: 0 };
+      knob.style.transform = 'translate(0,0)';
       e.preventDefault();
     });
     el.addEventListener('pointermove', (e) => {
-      if (e.pointerId !== id) return;
-      const v = stickVector(el, e);
-      state[key] = v;
-      knob.style.transform = `translate(${v.x * 34}px, ${v.y * 34}px)`;
+      if (e.pointerId !== id || !origin) return;
+      set(e);
     });
     const release = (e) => {
       if (e.pointerId !== id) return;
       id = null;
-      state[key] = { x: 0, y: 0 };
+      origin = null;
+      target[key] = { x: 0, y: 0 };
       knob.style.transform = 'translate(0,0)';
     };
     el.addEventListener('pointerup', release);
@@ -130,7 +147,7 @@ export function createControls({ canvas, hud, onTap = () => {}, onWModeChange = 
     if (twoFinger && pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       const y = (a.y + b.y) / 2;
-      setW(twoFinger.w + ((twoFinger.y - y) / 260) * W_RANGE);
+      setW(twoFinger.w + ((twoFinger.y - y) / 420) * W_RANGE);
       return;
     }
     if (e.pointerId !== dragId || !last) return;
@@ -139,8 +156,8 @@ export function createControls({ canvas, hud, onTap = () => {}, onWModeChange = 
     last = { x: e.clientX, y: e.clientY };
     moved += Math.abs(dx) + Math.abs(dy);
     state.dragObject = state.dragObject || { x: 0, y: 0 };
-    state.dragObject.x += dx * 0.007;
-    state.dragObject.y += dy * 0.007;
+    state.dragObject.x += dx * 0.0045;
+    state.dragObject.y += dy * 0.0045;
   });
 
   const endDrag = (e) => {
@@ -189,6 +206,17 @@ export function createControls({ canvas, hud, onTap = () => {}, onWModeChange = 
     state,
     enableGyro,
     setW,
+    /**
+     * Il bersaglio delle levette: è qui che arriva il dito, ed è qui che deve
+     * arrivare anche un test. Quello che il gioco legge (`state.move`) è il
+     * valore già smorzato, e sovrascriverlo non simulerebbe nessuno.
+     */
+    setMove(v) {
+      target.move = { x: v.x || 0, y: v.y || 0 };
+    },
+    setLook(v) {
+      target.look = { x: v.x || 0, y: v.y || 0 };
+    },
     recalibrate() {
       state.beta0 = state.beta;
     },
@@ -196,6 +224,17 @@ export function createControls({ canvas, hud, onTap = () => {}, onWModeChange = 
     get deviceMoving() {
       return performance.now() - lastMotion < 350;
     },
+    /** Smorza gli stick: il comando segue il dito, ma senza scatti. */
+    update(dt) {
+      const a = 1 - Math.exp(-dt / SMOOTH_SECONDS);
+      for (const key of ['move', 'look']) {
+        state[key] = {
+          x: state[key].x + (target[key].x - state[key].x) * a,
+          y: state[key].y + (target[key].y - state[key].y) * a,
+        };
+      }
+    },
+
     frameEnd() {
       state.dragObject = null;
       state.lastTap = null;

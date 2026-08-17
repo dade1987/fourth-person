@@ -71,6 +71,7 @@ uniform float uSliceCenter;  // il w della tua fetta, in coordinate camera
 uniform float uWindow;       // larghezza della finestra in w
 uniform float uOpacity;
 uniform vec3 uTint;
+uniform float uCellHue;   // 1 sui politopi (le celle vanno distinte), 0 sugli oggetti di scena
 uniform float uTime;
 uniform float uFogDensity;
 uniform vec3 uFogColor;
@@ -118,10 +119,10 @@ void main() {
 
   // ogni cella la sua tinta: devono distinguersi tutte e otto
   float hue = fract(vCellId * 0.1379);
-  vec3 cellHue = 0.78 + 0.22 * cos(6.2831853 * (vec3(0.0, 0.33, 0.67) + hue));
+  vec3 cellHue = mix(vec3(1.0), 0.78 + 0.22 * cos(6.2831853 * (vec3(0.0, 0.33, 0.67) + hue)), uCellHue);
   vec3 tint = mix(vec3(1.0), uTint * cellHue * 1.18, 0.40 + 0.60 * nearW);
   vec3 glassColor = mix(refr * tint, refl, fres);
-  glassColor += holoSheen(N, V, uTilt, nearW, vCellId) * 0.55;
+  glassColor += holoSheen(N, V, uTilt, nearW, vCellId) * (0.22 + 0.33 * uCellHue);
 
   float lam = max(dot(N, normalize(uLightDir)), 0.0);
   vec3 solidColor = uTint * (0.22 + 0.78 * lam);

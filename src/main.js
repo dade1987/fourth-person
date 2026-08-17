@@ -85,7 +85,13 @@ async function boot() {
     canvas,
     hud,
     onTap: (p) => onTap(p),
-    onWModeChange: () => {},
+    onWModeChange: (on) => {
+      if (on && !settings.seenW) {
+        settings.seenW = true;
+        saveSettings();
+        hud.toast(t.ui.wExplain, 6000);
+      }
+    },
   });
 
   // ----------------------------------------------------------- prospettiva
@@ -101,15 +107,28 @@ async function boot() {
   hud.el.modeProjection.onclick = () => {
     world.setSlice('projection');
     world.emit('slice', { target: 0 });
+    hud.modeHint(t.ui.modeHintProjection);
   };
   hud.el.modeSection.onclick = () => {
     world.setSlice('section');
     world.emit('slice', { target: 1 });
+    hud.modeHint(t.ui.modeHintSection);
   };
   hud.el.menuBtn.onclick = () => (hud.panelOpen() ? hud.closePanel() : openMenu());
 
-  hud.el.modeProjection.textContent = t.ui.projection;
-  hud.el.modeSection.textContent = t.ui.section;
+  function paintLabels() {
+    hud.el.modeProjection.textContent = t.ui.projection;
+    hud.el.modeSection.textContent = t.ui.section;
+    hud.el.wcaption.textContent = t.ui.wCaption;
+  }
+  paintLabels();
+
+  /** Ombra o fetta non sono nomi: sono due cose diverse, e va detto ogni volta. */
+  function paintModeHint() {
+    const name = currentName(world.sliceMode);
+    if (name === 'section') hud.modeHint(t.ui.modeHintSection);
+    else if (name === 'projection') hud.modeHint(t.ui.modeHintProjection);
+  }
 
   // --------------------------------------------------------------- eventi
   world.on(async (type, payload) => {
@@ -119,6 +138,11 @@ async function boot() {
       const p = t.puzzles[payload.puzzle];
       if (p) {
         await voice.say(p.solved);
+        hud.subtitle(null);
+      }
+      const all = refreshGoals({ open: true, hideAfter: 4200 });
+      if (all) {
+        await voice.say(t.objectives.allDone);
         hud.subtitle(null);
       }
       offerClip();
@@ -243,6 +267,29 @@ async function boot() {
     }
   }
 
+  // --------------------------------------------------------- gli obiettivi
+  const GOALS = ['sealed-box', 'rings', 'hand'];
+  let goalsTimer = null;
+
+  function refreshGoals({ open = false, hideAfter = 0 } = {}) {
+    if (world.stage !== 'room') return hud.goals(null);
+    const solved = {
+      'sealed-box': !!world.puzzles.box?.state.solved,
+      rings: !!world.puzzles.rings?.state.solved,
+      hand: !!world.puzzles.hand?.state.solved,
+    };
+    hud.goals(
+      t.objectives.title,
+      GOALS.map((id) => ({ text: t.objectives[id], done: solved[id] }))
+    );
+    if (open) hud.showGoals(true);
+    if (goalsTimer) clearTimeout(goalsTimer);
+    if (hideAfter) goalsTimer = setTimeout(() => hud.showGoals(false), hideAfter);
+    return GOALS.every((id) => solved[id]);
+  }
+
+  hud.el.goalChip.onclick = () => hud.showGoals(!hud.goalsOpen());
+
   // ------------------------------------------------------------- il menu
   function openMenu() {
     hud.panel((panel) => {
@@ -263,8 +310,7 @@ async function boot() {
         settings.lang = langSel.value;
         saveSettings();
         t = await loadLanguage(settings.lang);
-        hud.el.modeProjection.textContent = t.ui.projection;
-        hud.el.modeSection.textContent = t.ui.section;
+        paintLabels();
         hud.closePanel();
       };
       row(panel, t.ui.language, langSel);
@@ -370,6 +416,7 @@ async function boot() {
 
   async function startLadder(from = 0) {
     hud.objectChip(null);
+    hud.goals(null);
     hud.modeBar(true);
     await ladder.run(from);
     startExplore();
@@ -377,6 +424,7 @@ async function boot() {
 
   /** La vetrina delle cose di casa: una tazza con vero spessore in w, e un lucchetto. */
   function startEveryday() {
+    hud.goals(null);
     world.setStage('oggetti');
     hud.controls(false);
     hud.compass(true);
@@ -399,8 +447,10 @@ async function boot() {
     hud.compass(true);
     hud.modeBar(true);
     hud.chapter(null);
-    // Chi salta la Scala non deve trovarsi in una stanza muta: una riga sola,
-    // che dice cosa c'è da fare, e il cursore della quarta direzione che pulsa.
+    // Chi arriva qui deve sapere due cose: perché ci è e cosa deve fare.
+    refreshGoals({ open: true, hideAfter: 9000 });
+    paintModeHint();
+    voice.say(t.objectives.intro).then(() => hud.subtitle(null));
     hud.action(t.puzzles['sealed-box'].hint);
     hud.hintW(true);
     const watch = setInterval(() => {
@@ -465,6 +515,7 @@ async function boot() {
 
     const size = screenHalfSizeMeters(canvas.clientWidth, canvas.clientHeight);
 
+    controls.update(dt);
     world.update(dt, {
       move: controls.state.move,
       look: controls.state.look,
@@ -487,6 +538,7 @@ async function boot() {
 
     compass.draw(cameraPlaneAngles(world.camera), world.player[3], W_RANGE);
     hud.setMode(currentName(world.sliceMode));
+    if (hud.el.modeBar && !hud.el.modeBar.classList.contains('hidden') && world.stage === 'room') paintModeHint();
     drone.setW(world.player[3]);
 
     requestAnimationFrame(frame);
