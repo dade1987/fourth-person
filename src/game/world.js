@@ -37,6 +37,11 @@ const TINTS = {
 
 const easeOut = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
 
+/** Quanta della crescita dovuta a w si compensa. 0 = matematica pura e scena
+ *  che esce dallo schermo; 1 = nessun indizio di distanza in w. A 0,6 la
+ *  nidificazione e la parallasse restano tutte, e il mondo non si perde. */
+const W_SCALE_COMPENSATION = 0.6;
+
 export function createWorld(renderer) {
   const meshCache = new Map();
 
@@ -104,6 +109,19 @@ export function createWorld(renderer) {
     cube: { scale3: 0.060, offset3: [0, 0.020, -0.058], floorY: -0.085, shadowRadius: 0.22 },
     box: { scale3: 0.030, offset3: [0, 0.014, -0.140], floorY: -0.044, shadowRadius: 0.20 },
     room: { scale3: 0.030, offset3: [0, 0.014, -0.140], floorY: -0.044, shadowRadius: 0.20 },
+  };
+
+  /**
+   * Allontanandosi nella fetta il divisore della proiezione cambia e tutto si
+   * gonfia: corretto, e ingiocabile. Qui se ne compensa una parte, uguale per
+   * ogni oggetto — quindi i rapporti fra le cose, che sono il contenuto, non
+   * cambiano di una virgola.
+   */
+  const wCompensation = () => {
+    const pw = W_DISTANCE - world.player[3];
+    const raw = W_DISTANCE / Math.max(pw, 0.4);
+    const corrected = 1 + (raw - 1) * (1 - W_SCALE_COMPENSATION);
+    return corrected / raw;
   };
 
   const world = {
@@ -483,7 +501,7 @@ export function createWorld(renderer) {
         sliceMode,
         objects,
         // la scena entra avvicinandosi appena: cubic-bezier, mai lineare
-        scale3: world.view.scale3 * (0.90 + 0.10 * easeOut(world.enter)),
+        scale3: world.view.scale3 * (0.90 + 0.10 * easeOut(world.enter)) * wCompensation(),
         offset3: world.view.offset3,
         floorY: world.view.floorY,
         shadowRadius: world.view.shadowRadius,

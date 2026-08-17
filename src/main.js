@@ -333,6 +333,7 @@ async function boot() {
       row(panel, t.ui.wiggle, toggleControl(settings.wiggle, (v) => {
         settings.wiggle = v;
         saveSettings();
+        if (!v) hud.toast(t.ui.wiggleOff, 2000);
       }));
       row(panel, t.ui.amplitude, sliderControl(settings.amplitudeDeg, 3, 6, 0.5, (v) => {
         settings.amplitudeDeg = v;
@@ -496,7 +497,13 @@ async function boot() {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
 
-    const moving = controls.deviceMoving;
+    // "in movimento" non è solo il giroscopio: se stai toccando lo schermo la
+    // parallasse la stai già generando tu, e quella imposta deve togliersi di mezzo.
+    const touching =
+      controls.state.move.x !== 0 || controls.state.move.y !== 0 ||
+      controls.state.look.x !== 0 || controls.state.look.y !== 0 ||
+      !!controls.state.dragObject;
+    const moving = controls.deviceMoving || touching;
     const gain = handover.update(dt, moving);
 
     let eye;
@@ -517,6 +524,12 @@ async function boot() {
         reducedMotion: settings.reducedMotion,
         userEnabled: settings.wiggle,
       });
+    // La prima volta che entra, si dice cos'è e come si spegne. Una volta sola.
+    if (allowWiggle && gain > 0.3 && !settings.seenWiggle) {
+      settings.seenWiggle = true;
+      saveSettings();
+      hud.toast(t.ui.wiggleExplain, 6500);
+    }
     if (allowWiggle) {
       const p = clampParams(settings);
       const off = wiggleOffset(world.time, { ...p, distance: VIEW_DISTANCE, gain });

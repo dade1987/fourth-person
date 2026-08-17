@@ -57,7 +57,9 @@
     "wCaption": "fourth direction",
     "wExplain": "W: the right stick now turns in the planes that contain the fourth direction. It is the only way to turn an object inside out.",
     "wSliderExplain": "This slider moves you in the fourth direction: the way in which the box has no lid.",
-    "labs": "under the bonnet"
+    "labs": "under the bonnet",
+    "wiggleExplain": "It sways on purpose: that motion is what gives depth without glasses. If it bothers you, turn it off in ≡ → sway.",
+    "wiggleOff": "sway off"
   },
   "chapters": [
     {

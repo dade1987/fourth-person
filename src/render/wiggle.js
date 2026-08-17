@@ -15,9 +15,12 @@ export const WIGGLE_LIMITS = {
   maxFrequencyHz: 0.8,
 };
 
+// Tarature di partenza al minimo della finestra consentita dalla specifica.
+// Più su di così, su un telefono tenuto in mano, non si legge come "la mia testa
+// si muove" ma come "il mondo dondola" — e quello è mal di mare, non profondità.
 export const DEFAULTS = {
-  amplitudeDeg: 4.5,
-  frequencyHz: 0.55,
+  amplitudeDeg: 3.2,
+  frequencyHz: 0.45,
   enabled: true,
 };
 
@@ -66,9 +69,12 @@ export function wiggleOffset(time, { amplitudeDeg, frequencyHz, distance = 0.35,
  */
 export const STILLNESS_SECONDS = 2;
 
-export function makeHandover({ stillnessSeconds = STILLNESS_SECONDS, fadeSeconds = 1.2 } = {}) {
+export function makeHandover({ stillnessSeconds = STILLNESS_SECONDS, fadeSeconds = 2.2 } = {}) {
   let still = 0;
-  let gain = 1;
+  // Si parte da fermi: l'oscillazione entra dopo qualche secondo di immobilità,
+  // salendo piano. Aprire il link e trovarsi la scena che dondola è una brutta
+  // prima impressione, e per qualcuno è proprio nausea.
+  let gain = 0;
   return {
     get gain() {
       return gain;

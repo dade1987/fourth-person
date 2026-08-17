@@ -127,7 +127,8 @@
   }
   #wbutton.on { background: rgba(255,190,107,.22); border-color: var(--w-accent); color: var(--w-accent); }
 
-  #compass { position: absolute; left: var(--pad); top: calc(124px + env(safe-area-inset-top)); width: 128px; height: 92px; }
+  /* sotto il riquadro degli obiettivi: la bussola non va mai coperta */
+  #compass { position: absolute; left: var(--pad); top: calc(238px + env(safe-area-inset-top)); width: 128px; height: 92px; }
   #modeBar {
     position: absolute; right: var(--pad); top: calc(12px + env(safe-area-inset-top));
     display: flex; gap: 8px; align-items: center;
@@ -216,9 +217,10 @@
   #goals li.done span:last-child { text-decoration: line-through; opacity: .6; }
 
   #toast {
-    position: absolute; left: 0; right: 0; top: calc(84px + env(safe-area-inset-top));
-    text-align: center; font-size: 15px; color: var(--accent);
+    max-width: 34rem; text-align: center; font-size: 14px; line-height: 1.35;
+    color: var(--w-accent); text-shadow: 0 2px 14px rgba(0,0,0,.95);
   }
+  #toast.hidden { display: none; }
   #share { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(252px + env(safe-area-inset-bottom)); }
   #share.hidden { transform: translateX(-50%) translateY(6px); }
   #recdot { position: absolute; top: calc(14px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); font-size: 12px; color: #ff8a8a; }
@@ -244,9 +246,9 @@
     <h3 id="goalsTitle"></h3>
     <ul id="goalsList"></ul>
   </div>
-  <div id="toast" class="fade hidden"></div>
   <div id="recdot" class="fade hidden">● 6s</div>
   <div id="texts">
+    <div id="toast" class="fade hidden"></div>
     <div id="subtitle" class="fade hidden"></div>
     <div id="action" class="fade hidden"></div>
   </div>

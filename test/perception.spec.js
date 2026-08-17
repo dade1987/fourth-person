@@ -74,8 +74,19 @@ test('il moto è sinusoidale e continuo, non un alternarsi fra due fotogrammi', 
   assert.ok(new Set(values.map((v) => v.toFixed(4))).size > 100);
 });
 
+test('si parte fermi: l oscillazione non aggredisce chi apre il link', () => {
+  const h = makeHandover();
+  assert.equal(h.gain, 0, 'al primo fotogramma non deve oscillare niente');
+  // e nemmeno subito dopo: prima vengono i secondi di immobilità
+  for (let i = 0; i < 30; i++) h.update(1 / 60, false);
+  assert.equal(h.gain, 0, 'nei primi mezzo secondo si sta ancora fermi');
+  for (let i = 0; i < 60 * 6; i++) h.update(1 / 60, false);
+  assert.ok(h.gain > 0.99, 'dopo qualche secondo di calma entra, piano');
+});
+
 test('la parallasse generata da te ha la precedenza su quella subita', () => {
   const h = makeHandover({ fadeSeconds: 0.5 });
+  for (let i = 0; i < 60 * 8; i++) h.update(1 / 60, false); // prima arriva a regime
   for (let i = 0; i < 60; i++) h.update(1 / 60, true); // dispositivo in movimento
   assert.ok(h.gain < 0.05, 'con il telefono in mano l oscillazione deve spegnersi');
   let steps = 0;

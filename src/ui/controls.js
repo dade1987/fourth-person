@@ -6,7 +6,12 @@
 //  cursore / due dita   traslazione in w, sempre con il valore a schermo
 //  giroscopio       prospettiva accoppiata, sempre attiva quando c'è
 
-export const W_RANGE = 1.2;
+/**
+ * Quanto lontano si può andare nella quarta direzione.
+ * Le pareti sono spesse 0,05: per scavalcarle basta un decimo. Una corsa lunga
+ * serviva solo a far esplodere la scala della proiezione e a perdere il mondo.
+ */
+export const W_RANGE = 0.7;
 
 export function createControls({ canvas, hud, onTap = () => {}, onWModeChange = () => {} }) {
   const state = {

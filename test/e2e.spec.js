@@ -259,6 +259,38 @@ test('sotto il cofano: le formule si muovono, e i politopi si contano davvero', 
   expect(text).not.toContain('✗');
 });
 
+test('l interfaccia non si accavalla: nessun riquadro sopra un altro', async ({ page }) => {
+  await page.goto('/index.html?fast=1');
+  await ready(page);
+  await page.getByText('no, fammi provare').click();
+  await page.waitForFunction(() => window.__fp.world.stage === 'room', null, { timeout: 20000 });
+  await page.waitForTimeout(4500); // obiettivi aperti, avviso del dondolio, comandi
+
+  const clashes = await page.evaluate(() => {
+    const ids = ['texts', 'goals', 'modeBar', 'stickL', 'stickR', 'wrap', 'compass'];
+    const boxes = ids
+      .map((id) => {
+        const e = document.getElementById(id);
+        if (!e) return null;
+        const b = e.getBoundingClientRect();
+        if (!b.width || !b.height || getComputedStyle(e).display === 'none') return null;
+        return { id, top: b.top, bottom: b.bottom, left: b.left, right: b.right };
+      })
+      .filter(Boolean);
+    const hits = [];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i];
+        const c = boxes[j];
+        const overlap = !(a.right <= c.left || c.right <= a.left || a.bottom <= c.top || c.bottom <= a.top);
+        if (overlap) hits.push(`${a.id} × ${c.id}`);
+      }
+    }
+    return hits;
+  });
+  expect(clashes).toEqual([]);
+});
+
 test('funziona offline: è una PWA, non una pagina', async ({ page, context }) => {
   await page.goto('/index.html');
   await page.waitForFunction(() => navigator.serviceWorker.controller || navigator.serviceWorker.ready, null, { timeout: 20000 });
