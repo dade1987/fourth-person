@@ -1,0 +1,30 @@
+import { chromium } from '@playwright/test';
+const OUT='/tmp/claude-0/-home-user-fourth-person/23890997-ab81-5a3c-8800-d5e62c13d8a3/scratchpad/';
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=swiftshader','--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport:{width:390,height:844}, deviceScaleFactor:1, locale:'it-IT' });
+p.on('pageerror', e=>console.log('PAGEERROR', e.stack));
+await p.goto('http://localhost:8123/index.html?fast=1');
+await p.waitForFunction(()=>!!window.__fp, null, {timeout:30000});
+await p.waitForTimeout(1200);
+await p.getByText('no, fammi provare').click();
+await p.waitForTimeout(1500);
+await p.locator('#menuBtn').click();
+await p.waitForTimeout(500);
+await p.getByText('sotto il cofano').click();
+await p.waitForTimeout(1500);
+console.log('schede:', await p.locator('.lab-card').count());
+console.log('readout non vuoti:', await p.evaluate(()=>[...document.querySelectorAll('.lab-readout')].filter(n=>n.textContent.trim().length>10).length));
+await p.screenshot({path:OUT+'lab1.png'});
+// prova la manopola della gravità
+const sliders = p.locator('.lab-card').nth(3).locator('input[type=range]');
+await sliders.first().fill('4');
+await p.waitForTimeout(800);
+const g = await p.locator('.lab-card').nth(3).locator('.lab-readout').innerText();
+console.log('gravità:', g.split('\n').slice(-2).join(' | '));
+// il tasto dei politopi
+await p.locator('.lab-card').nth(5).scrollIntoViewIfNeeded();
+await p.locator('.lab-card').nth(5).getByRole('button').first().click();
+await p.waitForTimeout(4000);
+console.log('politopi:', (await p.locator('.lab-card').nth(5).locator('.lab-readout').innerText()).split('\n').slice(0,3).join(' | '));
+await p.screenshot({path:OUT+'lab2.png'});
+await b.close();

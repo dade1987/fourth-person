@@ -146,6 +146,42 @@
   input[type=range] { width: 150px; }
   #panel .btn { align-self: flex-start; }
 
+  /* Sotto il cofano: le formule, con una manopola ciascuna. */
+  #lab {
+    position: absolute; inset: 0; background: rgba(6,7,10,.96); backdrop-filter: blur(18px);
+    padding: calc(20px + env(safe-area-inset-top)) var(--pad) calc(90px + env(safe-area-inset-bottom));
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  #lab h2 { margin: 0 0 4px; font-size: 22px; }
+  .lab-intro { margin: 0 0 20px; color: var(--dim); font-size: 15px; }
+  .lab-card {
+    border: 1px solid rgba(255,255,255,.10); border-radius: 16px; padding: 14px 14px 12px;
+    margin-bottom: 16px; background: rgba(255,255,255,.03);
+  }
+  .lab-card h3 { margin: 0 0 10px; font-size: 17px; font-weight: 600; }
+  .lab-formula {
+    margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; overflow-x: auto;
+    background: rgba(142,197,255,.08); border-left: 2px solid var(--accent);
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #cfe4ff; white-space: pre;
+  }
+  .lab-readout {
+    margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; overflow-x: auto;
+    background: rgba(0,0,0,.35); font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--ink); white-space: pre;
+  }
+  .lab-meaning { margin: 12px 0 0; font-size: 14px; line-height: 1.45; color: var(--dim); }
+  .lab-row { display: grid; grid-template-columns: 3.4rem 1fr 3.6rem; gap: 10px; align-items: center; padding: 3px 0; }
+  .lab-row label { font: 12px ui-monospace, monospace; color: var(--dim); }
+  .lab-row input[type=range] { width: 100%; }
+  .lab-row output { font: 12px ui-monospace, monospace; color: var(--accent); text-align: right; }
+  .lab-canvas { width: 100%; height: 120px; display: block; margin-top: 10px; }
+  .lab-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .lab-buttons .btn { font-size: 14px; padding: 10px 14px; min-height: 44px; }
+  #labClose {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 5;
+  }
+
   #flatstrip { width: min(92vw, 30rem); height: 46px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); display: block; margin: 0 auto; }
   #flatwrap { position: absolute; left: 0; right: 0; bottom: calc(190px + env(safe-area-inset-bottom)); padding: 0 var(--pad); }
 
@@ -222,6 +258,7 @@
   </div>
 
   <div id="panel" class="fade gone"></div>
+  <div id="lab" class="fade gone"></div>
 </div>
 
 <noscript><div id="fatal">Questo gioco ha bisogno di JavaScript.</div></noscript>

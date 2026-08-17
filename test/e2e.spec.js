@@ -227,6 +227,38 @@ test('il clip condivisibile viene generato ed è riproducibile', async ({ page }
   expect(info.playable).toBeTruthy();
 });
 
+test('sotto il cofano: le formule si muovono, e i politopi si contano davvero', async ({ page }) => {
+  await page.goto('/index.html?fast=1');
+  await ready(page);
+  await page.getByText('no, fammi provare').click();
+  await page.waitForFunction(() => window.__fp.world.stage === 'room', null, { timeout: 20000 });
+
+  await page.locator('#menuBtn').click();
+  await page.getByText('sotto il cofano').click();
+  await expect(page.locator('.lab-card')).toHaveCount(6);
+
+  // ogni scheda mostra numeri veri, non testo fisso
+  const readouts = page.locator('.lab-readout');
+  expect(await readouts.count()).toBeGreaterThanOrEqual(6);
+  await expect(readouts.first()).toContainText('det R = 1');
+
+  // muovere la manopola cambia il risultato: è la formula, non un disegno
+  const gravity = page.locator('.lab-card').nth(3);
+  const before = await gravity.locator('.lab-readout').innerText();
+  await gravity.locator('input[type=range]').first().fill('5');
+  await page.waitForTimeout(600);
+  expect(await gravity.locator('.lab-readout').innerText()).not.toBe(before);
+
+  // i sei politopi vengono generati e contati nel browser, adesso
+  const polytopes = page.locator('.lab-card').nth(5);
+  await polytopes.getByRole('button').first().click();
+  await expect(polytopes.locator('.lab-readout')).toContainText('600-cell', { timeout: 30000 });
+  const text = await polytopes.locator('.lab-readout').innerText();
+  expect(text).toContain('120  720 1200  600'); // 600-cella: i conteggi noti
+  expect(text.match(/✓/g).length).toBe(6);
+  expect(text).not.toContain('✗');
+});
+
 test('funziona offline: è una PWA, non una pagina', async ({ page, context }) => {
   await page.goto('/index.html');
   await page.waitForFunction(() => navigator.serviceWorker.controller || navigator.serviceWorker.ready, null, { timeout: 20000 });

@@ -8,6 +8,7 @@ import { createCompass } from './ui/compass.js';
 import { createVoice } from './onboarding/voice.js';
 import { runColdOpen } from './onboarding/coldopen.js';
 import { createLadder } from './onboarding/chapters.js';
+import { buildLabs } from './onboarding/labs.js';
 import { makeDrone } from './audio/drone.js';
 import { createClipRecorder, clipSupported, shareClip } from './capture/clip.js';
 import {
@@ -359,6 +360,15 @@ async function boot() {
         setTimeout(() => startLadder(0), 60);
       };
       panel.appendChild(again);
+
+      const labs = document.createElement('button');
+      labs.className = 'btn';
+      labs.textContent = t.ui.labs;
+      labs.onclick = () => {
+        hud.closePanel();
+        hud.lab((root) => buildLabs(root, t.labs), t.ui.close);
+      };
+      panel.appendChild(labs);
 
       const things = document.createElement('button');
       things.className = 'btn';

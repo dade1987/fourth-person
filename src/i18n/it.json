@@ -56,7 +56,8 @@
     "modeHintSection": "ne vedi una fetta sola, nitida: tutto il resto è nascosto",
     "wCaption": "quarta direzione",
     "wExplain": "W: adesso la levetta destra gira nei piani che contengono la quarta direzione. È l'unico modo per rovesciare un oggetto.",
-    "wSliderExplain": "Questo cursore ti sposta nella quarta direzione: è il verso in cui la cassa non ha un coperchio."
+    "wSliderExplain": "Questo cursore ti sposta nella quarta direzione: è il verso in cui la cassa non ha un coperchio.",
+    "labs": "sotto il cofano"
   },
   "chapters": [
     {
@@ -178,5 +179,50 @@
     "rings": "Separa i due anelli senza romperli",
     "hand": "Fai entrare la mano nella serratura specchiata",
     "allDone": "Tre cose che da dentro la loro fetta erano impossibili. Non hai rotto niente: sei passato di fianco."
+  },
+  "labs": {
+    "title": "sotto il cofano",
+    "intro": "Le formule che fanno girare il gioco, con una manopola ciascuna. Ogni numero qui sotto lo calcolano le stesse funzioni che muovono la scena: se la matematica sbaglia, sbaglia anche qui.",
+    "rotation": {
+      "title": "In quattro dimensioni si ruota in un piano",
+      "formula": "M[i][i] = M[j][j] = cos θ\nM[i][j] = −sin θ,  M[j][i] = +sin θ\n(tutto il resto: identità)",
+      "meaning": "Un asse non serve, e in 4D non basterebbe: i piani indipendenti sono sei, non tre. Muovi i due cursori insieme — quella è una rotazione doppia, e se gli angoli sono uguali è isoclina: nessuna direzione resta ferma."
+    },
+    "bivector": {
+      "title": "Il momento angolare ha sei componenti",
+      "formula": "L = matrice antisimmetrica 4×4 → 6 numeri\nΩ = I⁻¹L\ndL/dt = [L, Ω]        (Eulero, nel corpo)\nR L Rᵀ = costante     (nel mondo)",
+      "meaning": "In tre dimensioni il momento angolare sembra un vettore per una coincidenza: i piani sono tre come gli assi. Qui la coincidenza salta e restano i piani. Il numero in fondo è la deriva vera dell'integratore del gioco."
+    },
+    "wedge": {
+      "title": "Il prodotto vettoriale non esiste qui",
+      "formula": "n = ⋆(a ∧ b ∧ c)\nnᵢ = (−1)ⁱ · det(minore 3×3 senza la colonna i)",
+      "meaning": "Esiste solo in tre e in sette dimensioni. Per avere una normale servono tre vettori, non due — e infatti i tre prodotti scalari restano zero comunque tu muova i cursori."
+    },
+    "gravity": {
+      "title": "La caduta cubica, e le orbite che non stanno in piedi",
+      "formula": "area(3-sfera) = 2π²r³\n⇒ F ∝ 1/r³\nV_eff = (L² − μ)/2r²",
+      "meaning": "Sia il termine centrifugo sia quello gravitazionale vanno come 1/r²: si annullano o si sommano, non si bilanciano mai. È il motivo per cui in quattro dimensioni spaziali non esistono sistemi solari — Ehrenfest lo scrisse nel 1917.",
+      "perturbation": "perturbazione del raggio",
+      "escaped": "\n→ è scappata via. E non torna.",
+      "fallen": "\n→ è caduta dentro. E non torna.",
+      "stable": "\n→ per ora regge: sposta il cursore anche di poco."
+    },
+    "chirality": {
+      "title": "Destra e sinistra, e come si scambiano",
+      "formula": "segno di ⋆(e₁∧e₂∧e₃)  ∈ {+1, −1}\ndet R = +1 sempre",
+      "meaning": "Nessuna rotazione dentro la fetta cambia il segno: prova quanto vuoi con xy, xz, yz. Basta invece mezzo giro in un piano che contiene w — e l'oggetto torna specchiato, senza essere mai stato riflesso.",
+      "right": "→ destra (come sei partito)",
+      "left": "→ sinistra: è specchiato",
+      "reset": "rimetti a posto"
+    },
+    "polytopes": {
+      "title": "I politopi regolari sono sei, e si contano",
+      "formula": "V − E + F − C = 0",
+      "meaning": "In tre dimensioni i solidi regolari sono cinque, in quattro sono sei, da cinque dimensioni in poi sono tre per sempre. Il tasto qui sopra li genera davvero da codice e conta vertici, spigoli, facce e celle: nessuna tabella scritta a mano.",
+      "header": "valori noti     V    E    F    C",
+      "generated": "generati adesso  V    E    F    C",
+      "verify": "generali e conta",
+      "verified": "contati ✓"
+    }
   }
 }

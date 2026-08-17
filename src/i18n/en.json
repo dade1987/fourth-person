@@ -56,7 +56,8 @@
     "modeHintSection": "you see a single slice, sharp: everything else is hidden",
     "wCaption": "fourth direction",
     "wExplain": "W: the right stick now turns in the planes that contain the fourth direction. It is the only way to turn an object inside out.",
-    "wSliderExplain": "This slider moves you in the fourth direction: the way in which the box has no lid."
+    "wSliderExplain": "This slider moves you in the fourth direction: the way in which the box has no lid.",
+    "labs": "under the bonnet"
   },
   "chapters": [
     {
@@ -178,5 +179,50 @@
     "rings": "Separate the two rings without breaking them",
     "hand": "Make the hand fit the mirrored lock",
     "allDone": "Three things that were impossible from inside their slice. You broke nothing: you went around."
+  },
+  "labs": {
+    "title": "under the bonnet",
+    "intro": "The formulas that run the game, each with a knob. Every number below is computed by the same functions that move the scene: if the maths is wrong, it is wrong here too.",
+    "rotation": {
+      "title": "In four dimensions you rotate in a plane",
+      "formula": "M[i][i] = M[j][j] = cos θ\nM[i][j] = −sin θ,  M[j][i] = +sin θ\n(everything else: identity)",
+      "meaning": "An axis is not needed, and in 4D it would not be enough: there are six independent planes, not three. Move both sliders together — that is a double rotation, and if the angles match it is isoclinic: no direction stays still."
+    },
+    "bivector": {
+      "title": "Angular momentum has six components",
+      "formula": "L = antisymmetric 4×4 matrix → 6 numbers\nΩ = I⁻¹L\ndL/dt = [L, Ω]        (Euler, in the body)\nR L Rᵀ = constant     (in the world)",
+      "meaning": "In three dimensions angular momentum looks like a vector by coincidence: there are three planes, as many as the axes. Here the coincidence breaks and the planes remain. The number at the bottom is the real drift of the game's integrator."
+    },
+    "wedge": {
+      "title": "The cross product does not exist here",
+      "formula": "n = ⋆(a ∧ b ∧ c)\nnᵢ = (−1)ⁱ · det(3×3 minor without column i)",
+      "meaning": "It exists only in three and seven dimensions. A normal needs three vectors, not two — and indeed the three dot products stay zero however you move the sliders."
+    },
+    "gravity": {
+      "title": "The cubic fall, and orbits that cannot stand",
+      "formula": "area(3-sphere) = 2π²r³\n⇒ F ∝ 1/r³\nV_eff = (L² − μ)/2r²",
+      "meaning": "Both the centrifugal and the gravitational term go as 1/r²: they cancel or they add, they never balance. That is why four spatial dimensions have no solar systems — Ehrenfest wrote it in 1917.",
+      "perturbation": "radius perturbation",
+      "escaped": "\n→ it escaped. And it does not come back.",
+      "fallen": "\n→ it fell in. And it does not come back.",
+      "stable": "\n→ holding for now: nudge the slider a little."
+    },
+    "chirality": {
+      "title": "Left and right, and how they swap",
+      "formula": "sign of ⋆(e₁∧e₂∧e₃)  ∈ {+1, −1}\ndet R = +1 always",
+      "meaning": "No rotation inside the slice changes the sign: try as long as you like with xy, xz, yz. Half a turn in a plane containing w does it — and the object comes back mirrored, without ever having been reflected.",
+      "right": "→ right-handed (as you started)",
+      "left": "→ left-handed: it is mirrored",
+      "reset": "put it back"
+    },
+    "polytopes": {
+      "title": "There are six regular polytopes, and they can be counted",
+      "formula": "V − E + F − C = 0",
+      "meaning": "In three dimensions there are five regular solids, in four there are six, and from five dimensions on there are three for ever. The button above really generates them from code and counts vertices, edges, faces and cells: no hand-written table.",
+      "header": "known values    V    E    F    C",
+      "generated": "generated now    V    E    F    C",
+      "verify": "generate and count",
+      "verified": "counted ✓"
+    }
   }
 }

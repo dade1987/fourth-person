@@ -28,6 +28,7 @@ export function createHud() {
     coldopenText: $('coldopenText'),
     coldopenBtns: $('coldopenBtns'),
     panel: $('panel'),
+    lab: $('lab'),
     share: $('share'),
     rec: $('recdot'),
     flatwrap: $('flatwrap'),
@@ -283,6 +284,28 @@ export function createHud() {
         cancelAnimationFrame(flatAnim);
         show(el.flatwrap, false);
       };
+    },
+
+    /** Il laboratorio delle formule: pannello a sé, si scorre e si chiude. */
+    lab(build, closeLabel) {
+      el.lab.innerHTML = '';
+      build(el.lab);
+      const close = document.createElement('button');
+      close.className = 'btn primary';
+      close.id = 'labClose';
+      close.textContent = closeLabel;
+      close.onclick = () => hud.closeLab();
+      el.lab.appendChild(close);
+      el.lab.classList.remove('gone');
+      el.lab.scrollTop = 0;
+      requestAnimationFrame(() => show(el.lab, true));
+    },
+    closeLab() {
+      show(el.lab, false);
+      setTimeout(() => el.lab.classList.add('gone'), 280);
+    },
+    labOpen() {
+      return !el.lab.classList.contains('gone') && !el.lab.classList.contains('hidden');
     },
 
     panel(build) {

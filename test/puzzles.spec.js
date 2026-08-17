@@ -139,3 +139,59 @@ test('mano: due specchiature tornano al punto di partenza', () => {
   const twice = mul(planeRotation(0, 3, Math.PI), planeRotation(1, 3, Math.PI));
   assert.equal(chiralityOf(twice), chiralityOf(identity()));
 });
+
+// --- i laboratori delle formule -------------------------------------------
+
+import { LAB_KEYS } from '../src/onboarding/labs.js';
+import it from '../src/i18n/it.json' with { type: 'json' };
+import en from '../src/i18n/en.json' with { type: 'json' };
+
+test('laboratori: ogni scheda ha titolo, formula e significato, in tutte le lingue', () => {
+  assert.equal(LAB_KEYS.length, 6);
+  for (const [code, dict] of [['it', it], ['en', en]]) {
+    assert.ok(dict.labs, `manca la sezione labs in ${code}`);
+    assert.ok(dict.labs.title && dict.labs.intro, `manca il titolo in ${code}`);
+    for (const key of LAB_KEYS) {
+      const card = dict.labs[key];
+      assert.ok(card, `manca la scheda ${key} in ${code}`);
+      for (const field of ['title', 'formula', 'meaning']) {
+        assert.equal(typeof card[field], 'string', `${key}.${field} manca in ${code}`);
+        assert.ok(card[field].trim().length > 10, `${key}.${field} è troppo corto in ${code}`);
+      }
+    }
+    // le schede che hanno bisogno di etichette proprie ce le hanno
+    for (const extra of ['escaped', 'fallen', 'stable', 'perturbation']) {
+      assert.ok(dict.labs.gravity[extra], `gravity.${extra} manca in ${code}`);
+    }
+    for (const extra of ['right', 'left', 'reset']) {
+      assert.ok(dict.labs.chirality[extra], `chirality.${extra} manca in ${code}`);
+    }
+  }
+});
+
+test('traduzioni: italiano e inglese hanno le stesse chiavi', () => {
+  const keys = (o, prefix = '') =>
+    Object.entries(o).flatMap(([k, v]) =>
+      v && typeof v === 'object' && !Array.isArray(v) ? keys(v, `${prefix}${k}.`) : [`${prefix}${k}`]
+    );
+  const a = keys(it).sort();
+  const b = keys(en).sort();
+  assert.deepEqual(a.filter((k) => !b.includes(k)), [], 'chiavi presenti solo in italiano');
+  assert.deepEqual(b.filter((k) => !a.includes(k)), [], 'chiavi presenti solo in inglese');
+});
+
+test('la Scala ha sette capitoli in tutte le lingue, e ognuno chiede un azione', () => {
+  for (const [code, dict] of [['it', it], ['en', en]]) {
+    assert.equal(dict.chapters.length, 7, `capitoli sbagliati in ${code}`);
+    dict.chapters.forEach((ch, i) => {
+      assert.ok(ch.title && ch.id, `capitolo ${i} incompleto in ${code}`);
+      // il settimo è l'unico senza azione: è dichiarato così nella specifica
+      if (i < 6) assert.ok(ch.action, `il capitolo ${i + 1} non chiede niente al giocatore (${code})`);
+      // le parole vietate restano vietate
+      const text = [ch.title, ...(ch.lines || []), ch.action || ''].join(' ').toLowerCase();
+      for (const banned of ['politopo', 'iperpiano', 'isomorfismo', 'ortogonale']) {
+        assert.ok(!text.includes(banned), `"${banned}" nel capitolo ${i + 1} (${code})`);
+      }
+    });
+  }
+});

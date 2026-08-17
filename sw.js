@@ -1,7 +1,7 @@
 // sw.js — PWA installabile, e soprattutto funzionante offline (SPEC §2).
 // Il gioco base sta sotto i 2 MB: si può mettere tutto in cache al primo colpo.
 
-const VERSION = 'quarta-persona-v1';
+const VERSION = 'quarta-persona-v2';
 const SHELL = [
   './',
   'index.html',
@@ -37,6 +37,9 @@ const SHELL = [
   'src/onboarding/coldopen.js',
   'src/onboarding/chapters.js',
   'src/onboarding/voice.js',
+  'src/onboarding/labs.js',
+  'src/render/bloom.js',
+  'src/render/backdrop.js',
   'src/ui/hud.js',
   'src/ui/controls.js',
   'src/ui/compass.js',
