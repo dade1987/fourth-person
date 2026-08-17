@@ -82,6 +82,24 @@ export function createSealedBoxPuzzle({ center = [0, 0, 0], half = [0.55, 0.45, 
       }
     },
 
+    /**
+     * A che punto sei, e quindi cosa devi fare adesso.
+     * "Non ho capito come si prende" non è colpa di chi gioca: se l'enigma ha
+     * quattro passi e il gioco ne suggerisce uno solo, la colpa è del gioco.
+     */
+    guide(player) {
+      if (state.solved) return 'done';
+      const inSlice = this.inSlice(player);
+      const overBox =
+        Math.abs(player[0] - c4[0]) < half[0] &&
+        Math.abs(player[2] - c4[2]) < half[2];
+      if (state.holding) return inSlice ? 'carryOut' : 'comeDown';
+      if (!inSlice && !overBox) return 'walkOver';   // sei fuori: adesso cammina
+      if (!inSlice && overBox) return 'comeDown';    // sei sopra il coperchio: scendi
+      if (inSlice && overBox) return 'takeIt';       // sei dentro: prendila
+      return 'stepOut';                              // sei fuori e nella fetta: esci dalla fetta
+    },
+
     /** Verifica di risolvibilità: esiste un cammino, e non passa dalle pareti. */
     solvable() {
       const from = new Float64Array([0, 0, 0, 0]);

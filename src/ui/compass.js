@@ -11,6 +11,10 @@ export function createCompass(canvas) {
   const ctx = canvas.getContext('2d');
 
   function draw(angles, w, wRange = 1.2) {
+    // Nascosta o non ancora impaginata: larghezza e altezza sono zero, e un
+    // raggio negativo farebbe eccezione. Un'eccezione qui fermava il ciclo di
+    // rendering e con lui tutto il gioco.
+    if (canvas.clientWidth < 8 || canvas.clientHeight < 8) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = (canvas.width = canvas.clientWidth * dpr);
     const H = (canvas.height = canvas.clientHeight * dpr);

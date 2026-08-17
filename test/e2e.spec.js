@@ -3,6 +3,45 @@
 
 import { test, expect } from '@playwright/test';
 
+
+/**
+ * Nessun riquadro sopra un altro. Si misurano solo le foglie (i contenitori
+ * contengono, e va bene). Chiamata a ogni schermata: è l'unico modo perché
+ * "non si accavalla" resti vero anche fra un mese.
+ */
+async function expectNoOverlap(page, where) {
+  const clashes = await page.evaluate(() => {
+    const ids = [
+      'modeBar', 'chapterTitle', 'modeHint', 'goals', 'compass',
+      'recdot', 'toast', 'subtitle', 'action', 'flatwrap', 'choices', 'share',
+      'stickL', 'stickR', 'wrap', 'coldopenText', 'coldopenBtns',
+    ];
+    const boxes = ids
+      .map((id) => {
+        const e = document.getElementById(id);
+        if (!e) return null;
+        const st = getComputedStyle(e);
+        if (st.display === 'none' || st.visibility === 'hidden' || parseFloat(st.opacity) < 0.05) return null;
+        const b = e.getBoundingClientRect();
+        if (b.width < 2 || b.height < 2) return null;
+        return { id, top: b.top, bottom: b.bottom, left: b.left, right: b.right };
+      })
+      .filter(Boolean);
+    const hits = [];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i];
+        const c = boxes[j];
+        if (!(a.right <= c.left || c.right <= a.left || a.bottom <= c.top || c.bottom <= a.top)) {
+          hits.push(`${a.id} × ${c.id}`);
+        }
+      }
+    }
+    return hits;
+  });
+  expect(clashes, `sovrapposizioni in "${where}"`).toEqual([]);
+}
+
 const ready = async (page) => page.waitForFunction(() => !!window.__fp, null, { timeout: 30000 });
 
 test('il primo fotogramma arriva entro tre secondi con la CPU rallentata 4×', async ({ page }) => {
@@ -25,6 +64,7 @@ test('il cold open mostra qualcosa di impossibile prima di ogni testo', async ({
   expect(await page.evaluate(() => window.__fp.world.stage)).toBe('coldopen');
   await expect(page.locator('#coldopen')).toBeVisible({ timeout: 8000 });
   await expect(page.locator('#coldopenText')).toHaveText(/vuoi capire/i);
+  await expectNoOverlap(page, 'cold open');
 });
 
 test('la Scala si percorre tutta, e ogni capitolo aspetta il giocatore', async ({ page }) => {
@@ -32,8 +72,11 @@ test('la Scala si percorre tutta, e ogni capitolo aspetta il giocatore', async (
   await ready(page);
   await page.getByText('sì, spiegamelo').click();
 
-  const chapterIs = async (n) =>
-    page.waitForFunction((k) => window.__fp.ladder.index === k, n, { timeout: 40000 });
+  const chapterIs = async (n) => {
+    await page.waitForFunction((k) => window.__fp.ladder.index === k, n, { timeout: 40000 });
+    await page.waitForTimeout(2200); // il capitolo finisce di parlare e mostra l'azione
+    await expectNoOverlap(page, `capitolo ${n + 1}`);
+  };
 
   const drag = async (dx, dy) => {
     await page.mouse.move(195, 400);
@@ -132,6 +175,7 @@ test('un enigma si risolve con i comandi, e solo uscendo dalla fetta', async ({ 
   expect(Math.abs(blocked[2])).toBeGreaterThan(0.5); // la parete lo ha fermato
   expect(before[2]).toBeGreaterThan(blocked[2]);
 
+  await expectNoOverlap(page, 'stanza');
   await solveSealedBox(page);
   expect(await page.evaluate(() => window.__fp.world.puzzles.box.state.solved)).toBeTruthy();
 });
@@ -257,38 +301,26 @@ test('sotto il cofano: le formule si muovono, e i politopi si contano davvero', 
   expect(text).toContain('120  720 1200  600'); // 600-cella: i conteggi noti
   expect(text.match(/✓/g).length).toBe(6);
   expect(text).not.toContain('✗');
+  await expectNoOverlap(page, 'sotto il cofano');
 });
 
-test('l interfaccia non si accavalla: nessun riquadro sopra un altro', async ({ page }) => {
+test('l interfaccia non si accavalla, in nessuna schermata', async ({ page }) => {
   await page.goto('/index.html?fast=1');
   await ready(page);
   await page.getByText('no, fammi provare').click();
   await page.waitForFunction(() => window.__fp.world.stage === 'room', null, { timeout: 20000 });
   await page.waitForTimeout(4500); // obiettivi aperti, avviso del dondolio, comandi
+  await expectNoOverlap(page, 'stanza, tutto acceso');
 
-  const clashes = await page.evaluate(() => {
-    const ids = ['texts', 'goals', 'modeBar', 'stickL', 'stickR', 'wrap', 'compass'];
-    const boxes = ids
-      .map((id) => {
-        const e = document.getElementById(id);
-        if (!e) return null;
-        const b = e.getBoundingClientRect();
-        if (!b.width || !b.height || getComputedStyle(e).display === 'none') return null;
-        return { id, top: b.top, bottom: b.bottom, left: b.left, right: b.right };
-      })
-      .filter(Boolean);
-    const hits = [];
-    for (let i = 0; i < boxes.length; i++) {
-      for (let j = i + 1; j < boxes.length; j++) {
-        const a = boxes[i];
-        const c = boxes[j];
-        const overlap = !(a.right <= c.left || c.right <= a.left || a.bottom <= c.top || c.bottom <= a.top);
-        if (overlap) hits.push(`${a.id} × ${c.id}`);
-      }
-    }
-    return hits;
-  });
-  expect(clashes).toEqual([]);
+  // fuori dalla fetta la guida cambia, e resta al suo posto
+  await page.evaluate(() => window.__fp.controls.setW(0.7));
+  await page.waitForTimeout(900);
+  await expectNoOverlap(page, 'stanza, fuori dalla fetta');
+
+  // cose di tutti i giorni
+  await page.evaluate(() => window.__fp.startEveryday());
+  await page.waitForTimeout(1200);
+  await expectNoOverlap(page, 'cose di tutti i giorni');
 });
 
 test('funziona offline: è una PWA, non una pagina', async ({ page, context }) => {

@@ -39,35 +39,46 @@
   .hidden { transform: translateY(6px); }
   .gone { display: none !important; }
 
-  /* ---------------------------------------------------------------- testo */
-  /* Una colonna sola: i testi si impilano, non si sovrappongono mai, e stanno
-     sopra la fascia dei comandi invece che addosso. */
+  /* --------------------------------------------------------------- pile */
+  /* Due sole colonne: tutto ciò che compare entra in una delle due e si impila.
+     È l'unico modo per cui "non si sovrappone" sia vero per costruzione e non
+     per fortuna — e c'è un test end-to-end che lo verifica su ogni schermata. */
+  #top {
+    position: absolute; left: 0; right: 0; top: calc(64px + env(safe-area-inset-top));
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 0 var(--pad); pointer-events: none;
+  }
   #texts {
-    /* si ferma prima della colonna del cursore w: i testi non ci vanno mai sotto */
     position: absolute; left: 0; right: calc(74px + env(safe-area-inset-right));
     bottom: calc(178px + env(safe-area-inset-bottom));
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
     padding: 14px var(--pad) 10px; pointer-events: none;
-    background: linear-gradient(to top, rgba(6,7,10,.72), rgba(6,7,10,.45) 55%, rgba(6,7,10,0));
+    background: linear-gradient(to top, rgba(6,7,10,.75), rgba(6,7,10,.45) 60%, rgba(6,7,10,0));
   }
-  #texts > * { pointer-events: auto; }
+  #top > *, #texts > * { pointer-events: auto; }
+  /* nascosto vuol dire fuori dal flusso: nessuno spazio vuoto, nessun residuo */
+  #top > .hidden, #texts > .hidden, .gone { display: none !important; }
+
   #subtitle {
-    margin: 0 auto; max-width: 34rem; text-align: center;
+    margin: 0; max-width: 34rem; text-align: center;
     font-size: clamp(16px, 4.2vw, 21px); line-height: 1.38;
     text-shadow: 0 2px 18px rgba(0,0,0,.9);
   }
   #action {
-    max-width: 34rem; text-align: center; color: var(--accent);
+    margin: 0; max-width: 34rem; text-align: center; color: var(--accent);
     font-size: clamp(15px, 3.9vw, 18px); font-weight: 600; line-height: 1.35;
     text-shadow: 0 2px 14px rgba(0,0,0,.95);
   }
-  /* nascosto vuol dire fuori dal flusso: niente spazi vuoti fra i due testi */
-  #subtitle.hidden, #action.hidden { display: none; }
+  #toast {
+    margin: 0; max-width: 34rem; text-align: center; font-size: 14px; line-height: 1.35;
+    color: var(--w-accent); text-shadow: 0 2px 14px rgba(0,0,0,.95);
+  }
   #chapterTitle {
-    position: absolute; top: calc(62px + env(safe-area-inset-top)); left: 0; right: 0; padding: 0 18px;
-    text-align: center; color: var(--dim); font-size: 13px; letter-spacing: .09em; text-transform: lowercase;
+    margin: 0; text-align: center; color: var(--dim); font-size: 13px;
+    letter-spacing: .09em; text-transform: lowercase;
   }
   #chapterTitle b { display: block; color: var(--ink); font-size: 17px; letter-spacing: 0; text-transform: none; font-weight: 600; margin-top: 2px; }
+  #modeHint { margin: 0; max-width: 30rem; text-align: center; font-size: 12px; line-height: 1.35; color: var(--dim); }
 
   /* -------------------------------------------------------------- bottoni */
   .btn {
@@ -78,10 +89,7 @@
   }
   .btn:active { transform: scale(.96); background: rgba(255,255,255,.14); }
   .btn.primary { background: rgba(142,197,255,.16); border-color: rgba(142,197,255,.5); color: #dcecff; }
-  #choices {
-    position: absolute; left: 0; right: 0; bottom: calc(150px + env(safe-area-inset-bottom));
-    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 var(--pad);
-  }
+  #choices { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%; }
 
   /* ------------------------------------------------------------ cold open */
   #coldopen {
@@ -128,7 +136,7 @@
   #wbutton.on { background: rgba(255,190,107,.22); border-color: var(--w-accent); color: var(--w-accent); }
 
   /* sotto il riquadro degli obiettivi: la bussola non va mai coperta */
-  #compass { position: absolute; left: var(--pad); top: calc(238px + env(safe-area-inset-top)); width: 128px; height: 92px; }
+  #compass { align-self: flex-start; width: 128px; height: 92px; }
   #modeBar {
     position: absolute; right: var(--pad); top: calc(12px + env(safe-area-inset-top));
     display: flex; gap: 8px; align-items: center;
@@ -141,10 +149,6 @@
   }
   .chip:active { background: rgba(255,255,255,.16); }
   .chip.on { color: var(--ink); border-color: rgba(142,197,255,.55); background: rgba(142,197,255,.14); }
-  #modeHint {
-    position: absolute; right: var(--pad); top: calc(66px + env(safe-area-inset-top));
-    max-width: 62vw; text-align: right; font-size: 12px; line-height: 1.3; color: var(--dim);
-  }
 
   /* -------------------------------------------------------------- pannello */
   #panel {
@@ -194,17 +198,15 @@
     bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 5;
   }
 
-  #flatstrip { width: min(92vw, 30rem); height: 46px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); display: block; margin: 0 auto; }
-  #flatwrap { position: absolute; left: 0; right: 0; bottom: calc(232px + env(safe-area-inset-bottom)); padding: 0 var(--pad); }
+  #flatstrip { width: 100%; height: 46px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); display: block; }
+  #flatwrap { width: min(92vw, 30rem); }
 
   /* Gli obiettivi: cosa ci fai qui dentro. Senza, è una stanza con degli oggetti. */
   #goals {
-    position: absolute; top: calc(58px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
     width: min(88vw, 22rem); padding: 14px 16px; border-radius: 16px;
     background: rgba(12,14,19,.82); border: 1px solid rgba(255,255,255,.12);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   }
-  #goals.hidden { transform: translateX(-50%) translateY(-8px); }
   #goals h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--dim); letter-spacing: .04em; }
   #goals ul { margin: 0; padding: 0; list-style: none; }
   #goals li {
@@ -221,9 +223,8 @@
     color: var(--w-accent); text-shadow: 0 2px 14px rgba(0,0,0,.95);
   }
   #toast.hidden { display: none; }
-  #share { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(252px + env(safe-area-inset-bottom)); }
-  #share.hidden { transform: translateX(-50%) translateY(6px); }
-  #recdot { position: absolute; top: calc(14px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); font-size: 12px; color: #ff8a8a; }
+  #share { align-self: center; }
+  #recdot { font-size: 12px; color: #ff8a8a; }
   #fatal { position: absolute; inset: 0; display: grid; place-items: center; padding: 8vw; text-align: center; color: var(--dim); }
 </style>
 </head>
@@ -231,7 +232,6 @@
 <canvas id="view"></canvas>
 
 <div id="hud">
-  <div id="chapterTitle" class="fade hidden"></div>
   <div id="modeBar" class="fade hidden">
     <button class="chip" id="modeProjection">ombra</button>
     <button class="chip" id="modeSection">fetta</button>
@@ -239,22 +239,28 @@
     <button class="chip gone" id="objectChip">tazza</button>
     <button class="chip" id="menuBtn">≡</button>
   </div>
-  <div id="modeHint" class="fade hidden"></div>
-  <canvas id="compass" class="fade hidden"></canvas>
 
-  <div id="goals" class="fade hidden">
-    <h3 id="goalsTitle"></h3>
-    <ul id="goalsList"></ul>
+  <!-- Pila in alto: gli elementi si impilano, non si sovrappongono mai. -->
+  <div id="top">
+    <div id="chapterTitle" class="fade hidden"></div>
+    <div id="modeHint" class="fade hidden"></div>
+    <div id="goals" class="fade hidden">
+      <h3 id="goalsTitle"></h3>
+      <ul id="goalsList"></ul>
+    </div>
+    <canvas id="compass" class="fade hidden"></canvas>
   </div>
-  <div id="recdot" class="fade hidden">● 6s</div>
+
+  <!-- Pila in basso, sopra la fascia dei comandi. Stesso principio. -->
   <div id="texts">
+    <div id="recdot" class="fade hidden">● 6s</div>
     <div id="toast" class="fade hidden"></div>
     <div id="subtitle" class="fade hidden"></div>
     <div id="action" class="fade hidden"></div>
+    <div id="flatwrap" class="fade hidden"><canvas id="flatstrip"></canvas></div>
+    <div id="choices" class="fade hidden"></div>
+    <button id="share" class="btn primary fade hidden">manda a un amico</button>
   </div>
-  <div id="flatwrap" class="fade hidden"><canvas id="flatstrip"></canvas></div>
-  <div id="choices" class="fade hidden"></div>
-  <button id="share" class="btn primary fade hidden">manda a un amico</button>
 
   <div id="coldopen" class="fade hidden">
     <p id="coldopenText"></p>

@@ -195,3 +195,29 @@ test('la Scala ha sette capitoli in tutte le lingue, e ognuno chiede un azione',
     });
   }
 });
+
+test('cassa: la guida dice sempre il passo giusto, e sono quattro', () => {
+  const p = createSealedBoxPuzzle({});
+  // fuori dalla cassa, dentro la fetta: il primo passo è uscire dalla fetta
+  assert.equal(p.guide(at(0, 0, 3, 0)), 'stepOut');
+  // fuori dalla fetta, ma ancora lontano: cammina
+  assert.equal(p.guide(at(0, 0, 3, 0.5)), 'walkOver');
+  // sopra il coperchio: scendi
+  assert.equal(p.guide(at(0, 0, 0, 0.5)), 'comeDown');
+  // dentro, nella fetta: prendila
+  assert.equal(p.guide(at(0, 0, 0, 0)), 'takeIt');
+  // presa: portala fuori
+  p.attemptGrab(at(0, 0, 0, 0), () => {});
+  assert.equal(p.guide(at(0, 0, 0, 0)), 'carryOut');
+  assert.equal(p.guide(at(0, 0, 0, 0.5)), 'comeDown');
+  p.update(at(3, 0, 0, 0), () => {});
+  assert.equal(p.guide(at(3, 0, 0, 0)), 'done');
+
+  // e ogni passo ha una frase, in tutte le lingue
+  for (const [code, dict] of [['it', it], ['en', en]]) {
+    for (const step of ['stepOut', 'walkOver', 'comeDown', 'takeIt', 'carryOut']) {
+      const text = dict.puzzles['sealed-box'].guide[step];
+      assert.ok(text && text.length > 10, `manca la guida ${step} in ${code}`);
+    }
+  }
+});

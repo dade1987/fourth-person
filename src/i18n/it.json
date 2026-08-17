@@ -154,7 +154,15 @@
       "hint": "In tre dimensioni è chiusa da tutte le parti. Prova a uscire dalla fetta: il cursore ambra a destra.",
       "grab": "presa.",
       "solved": "sei passato sopra un coperchio che non ha un sopra.",
-      "reach": "Sei troppo lontano: avvicinati."
+      "reach": "Sei troppo lontano: avvicinati.",
+      "guide": {
+        "stepOut": "1 di 4 — Alza il cursore ambra a destra: esci dalla loro fetta.",
+        "walkOver": "2 di 4 — Adesso cammina fin sopra la cassa, con la levetta a sinistra.",
+        "comeDown": "3 di 4 — Sei sopra il coperchio. Riporta il cursore ambra a zero.",
+        "takeIt": "4 di 4 — Sei dentro la cassa. Tocca la chiave.",
+        "carryOut": "Ce l'hai. Esci come sei entrato: cursore su, cammina fuori, cursore giù.",
+        "done": ""
+      }
     },
     "rings": {
       "title": "i due anelli",

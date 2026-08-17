@@ -104,6 +104,7 @@ async function boot() {
   let lastView = null;
   let pickedVertex = null;
   let picking = false;
+  let lastGuide = null;
 
   hud.el.modeProjection.onclick = () => {
     world.setSlice('projection');
@@ -462,7 +463,6 @@ async function boot() {
     refreshGoals({ open: true, hideAfter: 9000 });
     paintModeHint();
     voice.say(t.objectives.intro).then(() => hud.subtitle(null));
-    hud.action(t.puzzles['sealed-box'].hint);
     hud.hintW(true);
     const watch = setInterval(() => {
       if (Math.abs(world.player[3]) > 0.05) {
@@ -493,7 +493,26 @@ async function boot() {
 
   // ------------------------------------------------------------- il loop
   let last = performance.now();
+  let crashed = false;
+
+  /**
+   * Rete di sicurezza: un'eccezione dentro il ciclo lo fermava per sempre, e il
+   * gioco restava lì congelato senza dire niente. Adesso il fotogramma seguente
+   * riparte comunque, e l'errore si vede una volta sola in console.
+   */
   function frame(now) {
+    try {
+      frameBody(now);
+    } catch (err) {
+      if (!crashed) {
+        crashed = true;
+        console.error('fotogramma saltato:', err);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function frameBody(now) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
 
@@ -559,12 +578,21 @@ async function boot() {
     lastProj = renderer.lastProj;
     lastView = renderer.lastView;
 
+    // la guida della cassa segue quello che stai facendo, passo per passo
+    const box = world.puzzles.box;
+    if (box && !box.state.solved && (world.stage === 'room' || world.stage === 'box')) {
+      const step = box.guide(world.player);
+      const text = t.puzzles['sealed-box'].guide[step];
+      if (text && text !== lastGuide) {
+        lastGuide = text;
+        hud.action(text);
+      }
+    }
+
     compass.draw(cameraPlaneAngles(world.camera), world.player[3], W_RANGE);
     hud.setMode(currentName(world.sliceMode));
     if (hud.el.modeBar && !hud.el.modeBar.classList.contains('hidden') && world.stage === 'room') paintModeHint();
     drone.setW(world.player[3]);
-
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 

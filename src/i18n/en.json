@@ -154,7 +154,15 @@
       "hint": "In three dimensions it is closed on every side. Try stepping out of the slice: the amber slider on the right.",
       "grab": "got it.",
       "solved": "you went over a lid that has no over.",
-      "reach": "Too far away: get closer."
+      "reach": "Too far away: get closer.",
+      "guide": {
+        "stepOut": "1 of 4 — Raise the amber slider on the right: step out of their slice.",
+        "walkOver": "2 of 4 — Now walk until you are over the box, with the left stick.",
+        "comeDown": "3 of 4 — You are above the lid. Bring the amber slider back to zero.",
+        "takeIt": "4 of 4 — You are inside the box. Tap the key.",
+        "carryOut": "You have it. Leave the way you came: slider up, walk out, slider down.",
+        "done": ""
+      }
     },
     "rings": {
       "title": "the two rings",
